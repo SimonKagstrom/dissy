@@ -1,0 +1,20 @@
+Dissy is a graphical frontend to objdump with navigation
+possibilities. See the webpage,
+
+  http://www.ipd.bth.se/ska/sim_home/dissy.html
+
+for more information.
+
+
+Running without installing
+--------------------------
+run
+
+$ scripts/dissy
+
+
+Installing
+----------
+run
+
+$ sudo python setup.py install

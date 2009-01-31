@@ -1,0 +1,90 @@
+Dissy (9)
+
+	-- Simon Kagstrom <simon.kagstrom@gmail.com>,
+
+Dissy (8)
+	* Special-case Linux crashes. This allows you to paste things like
+
+	    [ 3796.619417]  [<c031f2ef>] ? ext2_free_blocks+0xfa/0x2b7
+	    [ 3796.619417]  [<c024982b>] ? activate_page+0x9a/0xa2
+	    [ 3796.619417]  [<c0322c5f>] ? ext2_free_branches+0x12d/0x190
+	    [ 3796.619417]  [<c02820ef>] ? __getblk+0x27/0x294
+
+	into the dissy "address bar" and get a nice callback
+
+	* bdnz+/- for PowerPC
+
+	-- Simon Kagstrom <simon.kagstrom@gmail.com>, Sat Jan 31 10:16:14 CET 2009
+
+Dissy (7)
+	* Workaround for a objdump bug on (at least) some MIPS binaries,
+	where addresses are internally 64 bits. If dissy finds no
+	instructions in a function, it will therefore try to sign-extend
+	the value and use that
+
+	* Support for setting the OBJDUMP environment variable to set the
+	objdump to use (idea from Joseph E. Garvey)
+
+	* Initial ARM support (i.e., support for visualizing jumps -
+	disassembly has always worked)
+
+	* Better support for PowerPC (instruction regexp + handling of
+	more branch instructions)
+
+	* History handling has changed to more match that of a
+	web-browser, overwriting the "current" entry instead of appending
+	after it
+
+	-- Simon Kagstrom <simon.kagstrom@gmail.com>, Fri Jan 25 13:10:25 CET 2008
+
+Dissy (6)
+	* New ChangeLog format
+
+	* Better "location bar" behavior: Allow multiple words to be
+	pasted and do more intelligent handling of numbers
+
+	* Added navigation history with back/forward (like in web
+	browsers)
+
+	* Fixed MIPS register regexp to handle k registers
+
+	* Added manpage written by the Varun Hiremath of the Debian
+	project, and documented the new features
+
+	* Fixed bug where the -t option made it impossible to search
+	  for addresses
+
+	-- Simon Kagstrom <simon.kagstrom@gmail.com>, Sun Aug  5 12:54:21 CEST 2007
+
+2007-03-11 Simon Kågström <simon.kagstrom@gmail.com> (5)
+	* Don't parse symbols eagerly (this improves performance a lot)
+
+	* Added some missing jump instructions on IA-32
+
+2006-11-25 Simon Kågström <ska@bth.se> (4)
+	* Added PPC support (Andrew May)
+
+	* Added a text entry for marking certain patterns, e.g., to
+	highlight certain registers and so in the text. The pattern is a
+	regular expression
+
+	* Fixed checks to avoid a few non-fatal exceptions
+
+	* Added tooltips
+
+	* Setting of colors is now possible in the preferences dialogue
+
+2006-10-14 Simon Kågström <ska@bth.se> (3)
+	* Added ability to search for instructions and registers
+
+	* Fixed bug in label lookup
+
+2006-09-03 Simon Kågström <ska@bth.se> (2)
+	* Much faster loading of files. Only load a list of symbols and
+	then load and links each function on demand.
+
+	* More clever use of objdump, nm and readelf
+
+	* Added reload menu option
+
+	* Better IA-32 architecture support

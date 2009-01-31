@@ -1,0 +1,3 @@
+* Support ide_hwif+0x30 (Linux crashes)
+* bcl- 20,4*cr7+so, ff73930
+* U-boot: bne in get_table_entry_name, and genimg_get_os_name

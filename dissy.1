@@ -1,0 +1,52 @@
+.TH DISSY 1 "October 20, 2006"
+.SH NAME
+dissy - graphical frontend for objdump
+.SH DESCRIPTION
+.PP
+Dissy is a disassembler for Linux and UNIX which supports multiple
+architectures and allows easy navigation through the code. Dissy is
+implemented in Python and uses objdump for disassembling files. Dissy
+can be used for debugging, reverse engineering and checking
+compiler-generated code.
+.TP
+\fB\-t\fR \fIBASE_ADDRESS\fR
+Use BASE_ADDRESS as the start address of the disassembled code
+.PP
+.TP
+\fB\-h\fR
+Display usage
+.PP
+.SH Features and usage
+.PP
+* Dissy shows jumps with red links to the destination address
+.PP
+* A label is used to show call destinations
+.PP
+* Clicking (or pressing enter) on calls or jumps will take you to
+the destination function / address
+.PP
+* Dissy supports interactive searching for labels and addresses
+both for functions and instructions
+.PP
+* Browser-like history navigation (back/forward) is available, which is useful
+for example to lookup callchains. Alt-Left and Alt-Right are used to navigate
+back and forward
+.PP
+* The lookup (use Ctrl-l to access) feature allows for looking up pasted
+addresses or labels. The lookup is intelligent in that it tries to convert
+common patterns into numbers before reverting to label lookup. Pasting
+multiple addresses or names will lookup each in turn and stop at the last
+(access the earlier in the history)
+.PP
+* The highlight field (ues Ctrl-k to access) allows the disassembled text to
+be highlighted for example to show all accesses to a certain register. Regular
+expressions are allowed in this field
+.PP
+* The preferences window can be used to select which objdump to use (which can
+also be controlled by the OBJDUMP environment variable). Colors can also be
+selected in this window.
+.SH HOMEPAGE
+http://rtlab.tekproj.bth.se/wiki/index.php/Dissy
+.SH AUTHOR
+This manual page was written by Varun Hiremath <varunhiremath@gmail.com>,
+for the Debian project (but may be used by others).
