@@ -13,7 +13,7 @@ import cPickle, os, os.path
 
 PROGRAM_NAME="Dissy"
 PROGRAM_VERSION="9"
-PROGRAM_URL="http://www.ipd.bth.se/ska/sim_home/dissy.html"
+PROGRAM_URL="http://dissy.googlecode.com"
 
 class Config:
     def __init__(self):
