@@ -1,4 +1,7 @@
 Dissy (9)
+	* Fix close of about dialogue (again a patch from Lubomir Rintel)
+
+	* Fix deprecated file dialogue (patch from Lubomir Rintel, thanks)
 
 	-- Simon Kagstrom <simon.kagstrom@gmail.com>,
 

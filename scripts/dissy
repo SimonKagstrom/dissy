@@ -189,7 +189,8 @@ class GUI_Controller:
 	about.set_version("v%s" % (PROGRAM_VERSION) )
 	about.set_copyright("(C) Simon Kagstrom, 2006-2009")
 	about.set_website(PROGRAM_URL)
-	about.show()
+	about.run()
+        about.hide()
 
     def redisplayFunction(self):
 	try:
