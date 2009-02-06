@@ -2,11 +2,12 @@
 ##
 ## Copyright (C) 2006,  Blekinge Institute of Technology
 ##
-## Filename:      FileDialogue.py
 ## Author:        Simon Kagstrom <ska@bth.se>
 ## Description:   File dialogue
 ##
-## $Id: FileDialogue.py 8375 2006-05-30 08:59:01Z ska $
+## Licensed under the terms of GNU General Public License version 2
+## (or later, at your option). See COPYING file distributed with Dissy
+## for full text of the license.
 ##
 ######################################################################
 import pygtk, dissy

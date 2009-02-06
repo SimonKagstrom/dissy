@@ -1,4 +1,6 @@
 Dissy (9)
+	* Add licensing info to file headers
+
 	* Convert tabs to spaces (fix from shiyee)
 
 	* Fix close of about dialogue (again a patch from Lubomir Rintel)

@@ -2,11 +2,12 @@
 ##
 ## Copyright (C) 2006,  Blekinge Institute of Technology
 ##
-## Filename:      JumpStreamHandler.py
 ## Author:        Simon Kagstrom <ska@bth.se>
 ## Description:   Jump streams
 ##
-## $Id: JumpStreamHandler.py 8336 2006-05-26 18:47:58Z ska $
+## Licensed under the terms of GNU General Public License version 2
+## (or later, at your option). See COPYING file distributed with Dissy
+## for full text of the license.
 ##
 ######################################################################
 INVALID=0

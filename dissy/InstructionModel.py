@@ -2,11 +2,12 @@
 ##
 ## Copyright (C) 2006,  Blekinge Institute of Technology
 ##
-## Filename:      InstructionModel.py
 ## Author:        Simon Kagstrom <ska@bth.se>
 ## Description:   Instruction models
 ##
-## $Id: InstructionModel.py 12442 2006-11-25 10:14:05Z ska $
+## Licensed under the terms of GNU General Public License version 2
+## (or later, at your option). See COPYING file distributed with Dissy
+## for full text of the license.
 ##
 ######################################################################
 import gtk, gobject

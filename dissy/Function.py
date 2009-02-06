@@ -2,11 +2,12 @@
 ##
 ## Copyright (C) 2006,  Blekinge Institute of Technology
 ##
-## Filename:      Function.py
 ## Author:        Simon Kagstrom <ska@bth.se>
 ## Description:   A function
 ##
-## $Id: Function.py 17290 2008-01-25 08:20:08Z ska $
+## Licensed under the terms of GNU General Public License version 2
+## (or later, at your option). See COPYING file distributed with Dissy
+## for full text of the license.
 ##
 ######################################################################
 import re, os, cgi

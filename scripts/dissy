@@ -3,11 +3,12 @@
 ##
 ## Copyright (C) 2006,  Blekinge Institute of Technology
 ##
-## Filename:      dispy.py
 ## Author:        Simon Kagstrom <simon.kagstrom@gmail.com>
 ## Description:   The main program
 ##
-## $Id: dissy 21086 2009-01-31 06:35:23Z ska $
+## Licensed under the terms of GNU General Public License version 2
+## (or later, at your option). See COPYING file distributed with Dissy
+## for full text of the license.
 ##
 ######################################################################
 import pygtk, pango, getopt, sys, os, cgi, re

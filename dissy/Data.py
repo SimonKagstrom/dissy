@@ -2,11 +2,12 @@
 ##
 ## Copyright (C) 2006,  Blekinge Institute of Technology
 ##
-## Filename:      Function.py
 ## Author:        Simon Kagstrom <ska@bth.se>
 ## Description:   Describes data symbols
 ##
-## $Id: Data.py 9711 2006-09-03 12:18:11Z ska $
+## Licensed under the terms of GNU General Public License version 2
+## (or later, at your option). See COPYING file distributed with Dissy
+## for full text of the license.
 ##
 ######################################################################
 import re, os, cgi, curses.ascii

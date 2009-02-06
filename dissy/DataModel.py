@@ -2,11 +2,12 @@
 ##
 ## Copyright (C) 2006,  Blekinge Institute of Technology
 ##
-## Filename:      DataModel.py
 ## Author:        Simon Kagstrom <ska@bth.se>
 ## Description:   Display the functions
 ##
-## $Id: FunctionModel.py 8500 2006-06-12 14:03:16Z ska $
+## Licensed under the terms of GNU General Public License version 2
+## (or later, at your option). See COPYING file distributed with Dissy
+## for full text of the license.
 ##
 ######################################################################
 import gtk, gobject

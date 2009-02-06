@@ -2,11 +2,12 @@
 ##
 ## Copyright (C) 2007,  Simon Kagstrom
 ##
-## Filename:      history.py
 ## Author:        Simon Kagstrom <simon.kagstrom@gmail.com>
 ## Description:   History implementation
 ##
-## $Id:$
+## Licensed under the terms of GNU General Public License version 2
+## (or later, at your option). See COPYING file distributed with Dissy
+## for full text of the license.
 ##
 ######################################################################
 class History:

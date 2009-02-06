@@ -2,11 +2,12 @@
 ##
 ## Copyright (C) 2006,  Blekinge Institute of Technology
 ##
-## Filename:      intel.py
 ## Author:        Simon Kagstrom <ska@bth.se>
 ## Description:   Intel arch specific stuff
 ##
-## $Id: intel.py 14169 2007-03-11 14:43:02Z ska $
+## Licensed under the terms of GNU General Public License version 2
+## (or later, at your option). See COPYING file distributed with Dissy
+## for full text of the license.
 ##
 ######################################################################
 import sys, architecture

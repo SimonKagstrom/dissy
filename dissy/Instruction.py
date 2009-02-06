@@ -2,11 +2,12 @@
 ##
 ## Copyright (C) 2006,  Blekinge Institute of Technology
 ##
-## Filename:      Instruction.py
 ## Author:        Simon Kagstrom <ska@bth.se>
 ## Description:   Instruction class
 ##
-## $Id:$
+## Licensed under the terms of GNU General Public License version 2
+## (or later, at your option). See COPYING file distributed with Dissy
+## for full text of the license.
 ##
 ######################################################################
 from dissy.Entity import Entity, AddressableEntity

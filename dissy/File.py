@@ -2,11 +2,12 @@
 ##
 ## Copyright (C) 2006,  Blekinge Institute of Technology
 ##
-## Filename:      File.py
 ## Author:        Simon Kagstrom <ska@bth.se>
 ## Description:   Describes one file
 ##
-## $Id: File.py 20245 2008-10-08 17:32:19Z ska $
+## Licensed under the terms of GNU General Public License version 2
+## (or later, at your option). See COPYING file distributed with Dissy
+## for full text of the license.
 ##
 ######################################################################
 import cgi, os, sys

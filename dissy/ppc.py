@@ -2,11 +2,12 @@
 ##
 ## Copyright (C) 2006,  Blekinge Institute of Technology
 ##
-## Filename:      ppc.py
 ## Author:        Andrew May <acmay [at] acmay [dot] homeip [dot] net>
 ## Description:   PPC arch specific stuff
 ##
-## $Id: ppc.py 20236 2008-10-08 02:55:28Z ska $
+## Licensed under the terms of GNU General Public License version 2
+## (or later, at your option). See COPYING file distributed with Dissy
+## for full text of the license.
 ##
 ######################################################################
 import sys, architecture

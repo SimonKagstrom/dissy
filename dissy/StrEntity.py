@@ -2,11 +2,12 @@
 ##
 ## Copyright (C) 2006,  Blekinge Institute of Technology
 ##
-## Filename:      StrEntity.py
 ## Author:        Simon Kagstrom <ska@bth.se>
 ## Description:   String entity
 ##
-## $Id: StrEntity.py 8337 2006-05-26 20:00:53Z ska $
+## Licensed under the terms of GNU General Public License version 2
+## (or later, at your option). See COPYING file distributed with Dissy
+## for full text of the license.
 ##
 ######################################################################
 from dissy.Entity import Entity

@@ -2,11 +2,12 @@
 ##
 ## Copyright (C) 2006,  Blekinge Institute of Technology
 ##
-## Filename:      Entity.py
 ## Author:        Simon Kagstrom <ska@bth.se>
 ## Description:   Entity (address, size etc.)
 ##
-## $Id: Entity.py 8505 2006-06-13 09:28:22Z ska $
+## Licensed under the terms of GNU General Public License version 2
+## (or later, at your option). See COPYING file distributed with Dissy
+## for full text of the license.
 ##
 ######################################################################
 class Entity:

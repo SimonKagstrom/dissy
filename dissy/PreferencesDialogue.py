@@ -2,11 +2,12 @@
 ##
 ## Copyright (C) 2006,  Blekinge Institute of Technology
 ##
-## Filename:      PreferencesDialogue.py
 ## Author:        Simon Kagstrom <ska@bth.se>
 ## Description:   Preferences dialog
 ##
-## $Id: PreferencesDialogue.py 12233 2006-11-18 11:32:45Z ska $
+## Licensed under the terms of GNU General Public License version 2
+## (or later, at your option). See COPYING file distributed with Dissy
+## for full text of the license.
 ##
 ######################################################################
 import pygtk

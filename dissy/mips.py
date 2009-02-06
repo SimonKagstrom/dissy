@@ -2,11 +2,12 @@
 ##
 ## Copyright (C) 2006,  Blekinge Institute of Technology
 ##
-## Filename:      mips.py
 ## Author:        Simon Kagstrom <ska@bth.se>
 ## Description:   MIPS arch specific stuff
 ##
-## $Id: mips.py 14551 2007-03-29 16:55:13Z ska $
+## Licensed under the terms of GNU General Public License version 2
+## (or later, at your option). See COPYING file distributed with Dissy
+## for full text of the license.
 ##
 ######################################################################
 import dissy.architecture, re

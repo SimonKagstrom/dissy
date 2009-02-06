@@ -2,11 +2,12 @@
 ##
 ## Copyright (C) 2008,  Simon Kagstrom
 ##
-## Filename:      File.py
 ## Author:        Simon Kagstrom <simon.kagstrom@gmail.com>
 ## Description:   Bookmarks in functions/files
 ##
-## $Id: $
+## Licensed under the terms of GNU General Public License version 2 or
+## later. See COPYING file distributed with Dissy for full text of the
+## license.
 ##
 ######################################################################
 
