@@ -17,20 +17,20 @@ class InfoModel:
     def __init__(self, fileContainer):
         """ Sets up and populates our gtk.TreeStore """
 
-	self.tree_store = gtk.TreeStore( gobject.TYPE_STRING,
-					 gobject.TYPE_LONG,
-					 gobject.TYPE_STRING,
-					 gobject.TYPE_PYOBJECT
-					 )
-	# Create the TreeStore
-	for item in fileContainer.getData():
-	    # Insert functions
-	    item.iter = self.tree_store.append(None, ("0x%08x" % item.getAddress(),
-						      item.getSize(),
-						      item.getLabel(),
-						      item.getType(),
-						      item
-						      ) )
+        self.tree_store = gtk.TreeStore( gobject.TYPE_STRING,
+                                         gobject.TYPE_LONG,
+                                         gobject.TYPE_STRING,
+                                         gobject.TYPE_PYOBJECT
+                                         )
+        # Create the TreeStore
+        for item in fileContainer.getData():
+            # Insert functions
+            item.iter = self.tree_store.append(None, ("0x%08x" % item.getAddress(),
+                                                      item.getSize(),
+                                                      item.getLabel(),
+                                                      item.getType(),
+                                                      item
+                                                      ) )
 
     def getModel(self):
         """ Returns the model """

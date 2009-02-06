@@ -11,32 +11,32 @@
 ######################################################################
 class Entity:
     def __init__(self):
-	pass
+        pass
 
 
 class AddressableEntity(Entity):
     def __init__(self, address=0, baseAddress = 0, endAddress = 0):
-	self.label = ""
-	self.address = address + baseAddress
-	self.baseAddress = baseAddress
-	if endAddress == 0:
-	    self.endAddress = self.address
-	else:
-	    self.endAddress = endAddress + baseAddress
+        self.label = ""
+        self.address = address + baseAddress
+        self.baseAddress = baseAddress
+        if endAddress == 0:
+            self.endAddress = self.address
+        else:
+            self.endAddress = endAddress + baseAddress
 
     def getAddress(self):
-	return self.address
+        return self.address
 
     def getLabel(self):
-	return self.label
+        return self.label
 
     def getExtents(self):
-	"Return the extents of this function"
-	return (self.address - self.baseAddress, self.endAddress - self.baseAddress)
+        "Return the extents of this function"
+        return (self.address - self.baseAddress, self.endAddress - self.baseAddress)
 
     def setSize(self, size):
-	"Set the size of this entity"
-	self.endAddress = self.address + size
+        "Set the size of this entity"
+        self.endAddress = self.address + size
 
     def getSize(self):
-	return self.endAddress - self.address
+        return self.endAddress - self.address

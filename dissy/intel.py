@@ -13,23 +13,23 @@ import sys, architecture
 from dissy.architecture import Architecture
 
 intel_jumps = ['jbe',
-	       'jle',
-	       'jge',
-	       'jg',
-	       'je',
-	       'jb',
-	       'jz',
-	       'jne',
-	       'jnz',
-	       'jns',
-	       'js',
-	       'jmp',
-	       'ja',
-	       'jl',
-	       'call'
-	       ]
+               'jle',
+               'jge',
+               'jg',
+               'je',
+               'jb',
+               'jz',
+               'jne',
+               'jnz',
+               'jns',
+               'js',
+               'jmp',
+               'ja',
+               'jl',
+               'call'
+               ]
 intel_calls = ['call']
 
 class IntelArchitecture(architecture.Architecture):
     def __init__(self):
-	architecture.Architecture.__init__(self, intel_jumps, intel_calls)
+        architecture.Architecture.__init__(self, intel_jumps, intel_calls)

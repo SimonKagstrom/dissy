@@ -13,11 +13,11 @@ from dissy.Entity import Entity
 
 class StrEntity(Entity):
     def __init__(self, fn, string):
-	self.string = string
-	self.function = fn
+        self.string = string
+        self.function = fn
 
     def getFunction(self):
-	return self.function
+        return self.function
 
     def __str__(self):
-	return self.string
+        return self.string

@@ -13,18 +13,18 @@ import sys, architecture
 from dissy.architecture import Architecture
 
 arm_jumps = ['b',
-	     'bcc',
-	     'bl',
-	     'ble',
-	     'bne',
-	     'bleq',
-	     'blt',
-	     'bgt',
-	     'beq',
-	     'bcs',
-	     ]
+             'bcc',
+             'bl',
+             'ble',
+             'bne',
+             'bleq',
+             'blt',
+             'bgt',
+             'beq',
+             'bcs',
+             ]
 arm_calls = ['bl']
 
 class ArmArchitecture(architecture.Architecture):
     def __init__(self):
-	architecture.Architecture.__init__(self, arm_jumps, arm_calls)
+        architecture.Architecture.__init__(self, arm_jumps, arm_calls)
