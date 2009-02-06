@@ -2,7 +2,7 @@
 ##
 ## Copyright (C) 2006,  Blekinge Institute of Technology
 ##
-## Author:        Simon Kagstrom <ska@bth.se>
+## Author:        Simon Kagstrom <simon.kagstrom@gmail.com>
 ## Description:   Instruction models
 ##
 ## Licensed under the terms of GNU General Public License version 2
