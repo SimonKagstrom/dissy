@@ -37,20 +37,27 @@ NUM_JUMP_COLUMNS=3
 # Navigation history
 history = History()
 
-def loadFile(fileName):
+def lookupFile(name):
     pathsToSearch = ['.', '/usr/local/share/%s' % (PROGRAM_NAME).lower(),
                      '/usr/share/%s' % (PROGRAM_NAME).lower()]
     for path in pathsToSearch:
-        fullPath = "%s/%s" % (path, fileName)
+        fullPath = "%s/%s" % (path, name)
 
         try:
-            f = open(fullPath)
-            out = f.read()
-            f.close()
-            return out
+            st = os.lstat(fullPath)
+            return fullPath
         except:
             pass
     return None
+
+def loadFile(fileName):
+    try:
+        f = open(lookupFile(fileName))
+        out = f.read()
+        f.close()
+        return out
+    except:
+        return None
 
 # Taken from the cellrenderer.py example
 class GUI_Controller:
@@ -70,9 +77,16 @@ class GUI_Controller:
 
         self.display = DisplayModel(self.markPattern)
 
+        icon = None
+        icon_name = lookupFile('gfx/icon.svg')
+        if icon_name != None:
+            icon = gtk.gdk.pixbuf_new_from_file(icon_name)
+            icon = icon.scale_simple(64, 64, gtk.gdk.INTERP_BILINEAR)
+
         # setup the main window
         self.root = gtk.Window(type=gtk.WINDOW_TOPLEVEL)
         self.root.set_title("%s - %s" % (PROGRAM_NAME, inFile))
+        self.root.set_icon(icon)
         self.root.connect("destroy", self.destroy_cb)
         self.root.set_default_size(900, 600)
 
