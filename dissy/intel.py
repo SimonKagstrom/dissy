@@ -53,7 +53,7 @@ Performs a logical AND of the two operands, updating the condition flags without
 intel_lists_inited = False
 if not intel_lists_inited:
     conditional_instructions = {
-        'j': "Jump if %s", 
+        'j': "Jump if %s",
     }
     conditions = {
         'a': 'Above',
@@ -94,13 +94,13 @@ if not intel_lists_inited:
             intel_instr_descriptions[i + c] = conditional_instructions[i] % (conditions[c])
             intel_conditionflag_users += [i + c]
             intel_jumps += [i + c]
-            
+
 
 class IntelArchitecture(architecture.Architecture):
     def __init__(self):
         architecture.Architecture.__init__(self, intel_jumps, intel_calls,
             intel_conditionflag_setters, intel_conditionflag_users)
-    
+
     def getInstructionInfo(self, instruction):
         opcode = instruction.getOpcode()
         args = str(instruction.getArgs())

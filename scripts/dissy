@@ -329,7 +329,7 @@ class GUI_Controller:
         instrInfo = self.fileContainer.getArch().getInstructionInfo(instruction)
 
         self.instr_info_description.get_buffer().set_text(
-            instrInfo.get('shortinfo', '') + "\n" +  
+            instrInfo.get('shortinfo', '') + "\n" +
             instrInfo.get('description', '')
             )
 
@@ -430,7 +430,7 @@ class DisplayModel:
         entity = model[iter][3]
         entity.link()
         history.add(entity.address)
-        self.controller.instructionModel = InstructionModel.InfoModel(entity, 
+        self.controller.instructionModel = InstructionModel.InfoModel(entity,
             highlighters=self.controller.highlighters)
         model = self.controller.instructionModel.getModel()
         self.insnView.set_model( model )

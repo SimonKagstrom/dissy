@@ -26,7 +26,7 @@ arm_jumps = ['b',
              ]
 arm_calls = ['bl']
 arm_conditionflag_setters = ['cmp'] + \
-    [i + "s" for i in 
+    [i + "s" for i in
     ['mul', 'mla', 'umull', 'umlal', 'smull',
     'smlal', 'mov', 'mvn', 'asr', 'lsl', 'lsr', 'ror', 'rrx',] #TODO more
     ]
@@ -42,7 +42,7 @@ arm_instr_descriptions = {
     'bal': 'Unconditional Branch',
     'blal': 'Unconditional Branch and Link',
     'mov': 'Move',
-    'bx': """Branch and eXchange 
+    'bx': """Branch and eXchange
 PC := Rm""",
     'bl': """Branch with Link
 LR := Address of next instruction, PC := label""",
@@ -61,9 +61,9 @@ arm_lists_inited = False
 if not arm_lists_inited:
     branch_instructions = {
         'b': """Branch on %s
-PC := label, label is this instruction +/-32Mb""", 
+PC := label, label is this instruction +/-32Mb""",
         'bx': """Branch and eXchange on %s
-PC := Rm""", 
+PC := Rm""",
         'bl': """Branch and Link on %s""",
         'mov': """Move on %s""",
         }
@@ -93,7 +93,7 @@ PC := Rm""",
 
 class ArmArchitecture(architecture.Architecture):
     def __init__(self):
-        architecture.Architecture.__init__(self, arm_jumps, arm_calls, 
+        architecture.Architecture.__init__(self, arm_jumps, arm_calls,
             arm_conditionflag_setters, arm_conditionflag_users)
 
     def getInstructionInfo(self, instruction):
