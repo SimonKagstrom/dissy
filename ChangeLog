@@ -1,4 +1,13 @@
 Dissy (9)
+	* Refactor highlighting in the Instruction model class to allow it to
+	be more easily extendible (Mads Chr. Olesen)
+
+	* Add an information box right of the instruction view that describes
+	what the current instruction does (Mads Chr. Olesen)
+
+	* Highlight the instruction that (most likely) set the condition flags
+	if the current instruction is conditional (Mads Chr. Olesen)
+
 	* Added an icon (icon.svg). Please make a nicer version!
 
 	* Add licensing info to file headers and fix email address

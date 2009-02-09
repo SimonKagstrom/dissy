@@ -15,13 +15,20 @@ class Architecture:
     Architecture base class. Inherit this to implement
     architecture-specific handling (see intel.py and mips.py)
     """
-    def __init__(self, arch_jumps = [], arch_calls = []):
+    def __init__(self, arch_jumps = [], arch_calls = [], arch_conditionflagsetters = [],
+        arch_conditionflagusers = []):
         self.jumps = {}
         self.calls = {} # To handle reverse-engineering
+        self.conditionflagsetters = {}
+        self.conditionflagusers = {}
         for s in arch_jumps:
             self.jumps[s.strip()] = True
         for s in arch_calls:
             self.calls[s.strip()] = True
+        for s in arch_conditionflagsetters:
+            self.conditionflagsetters[s.strip()] = True
+        for s in arch_conditionflagusers:
+            self.conditionflagusers[s.strip()] = True
 
     def isJump(self, insn):
         "Returns true if this instruction is a jump"
@@ -30,6 +37,14 @@ class Architecture:
     def isCall(self, insn):
         "Returns true if this instruction is a call"
         return insn in self.calls
+
+    def isConditionFlagSetter(self, insn):
+        "Returns true if this instruction sets the condition flags"
+        return insn in self.conditionflagsetters
+
+    def isConditionFlagUser(self, insn):
+        "Returns true if this instruction uses the condition flags"
+        return insn in self.conditionflagusers
 
     def getJumpDestination(self, insn, args):
         """Parse the instruction to return the jump destination. The

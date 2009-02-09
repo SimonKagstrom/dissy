@@ -31,6 +31,7 @@ from dissy.FileDialogue import FileDialogue
 from dissy.history import History
 from dissy import FunctionModel
 from dissy import InstructionModel
+from dissy import InstructionModelHighlighter
 
 NUM_JUMP_COLUMNS=3
 
@@ -70,12 +71,18 @@ class GUI_Controller:
         else:
             self.fileContainer = File(inFile, baseAddress=baseAddress)
 
-        self.markPattern = None
+        self.searchwordHighlighter = InstructionModelHighlighter.SearchwordHighlighter()
+        self.conditionFlagHighlighter = InstructionModelHighlighter.ConditionFlagHighlighter()
+        self.highlighters = [
+            self.searchwordHighlighter,
+            self.conditionFlagHighlighter,
+        ]
 
         functionModel = FunctionModel.InfoModel(self.fileContainer).getModel()
-        insnModel = InstructionModel.InfoModel(None).getModel()
+        self.instructionModel = InstructionModel.InfoModel(None, highlighters=self.highlighters)
+        insnModel = self.instructionModel.getModel()
 
-        self.display = DisplayModel(self.markPattern)
+        self.display = DisplayModel(self)
 
         icon = None
         icon_name = lookupFile('gfx/icon.svg')
@@ -172,11 +179,28 @@ class GUI_Controller:
         # Get the model and attach it to the view
         self.functionView, self.instructionView = self.display.makeViews( functionModel, insnModel )
 
+        # Add instruction info section
+        hpaned_down = gtk.HPaned()
+        hpaned_down.set_position(900/3*2)
+        self.vbox_instr_info = gtk.VBox()
+
+        self.instr_info_label = gtk.Label("<b>Instruction Information</b>")
+        self.instr_info_label.set_use_markup(True)
+        self.vbox_instr_info.pack_start(self.instr_info_label, expand=False)
+        self.instr_info_description = gtk.TextView()
+        self.instr_info_description.set_editable(False)
+
+        self.instr_info_description.set_wrap_mode(gtk.WRAP_WORD)
+        self.vbox_instr_info.pack_start(self.instr_info_description)
+
+        sw_down.add(self.instructionView)
+        hpaned_down.pack1(sw_down, resize=True)
+        hpaned_down.pack2(self.vbox_instr_info, resize=False)
+
         # Add our view into the scrolled window
         sw_up.add(self.functionView)
-        sw_down.add(self.instructionView)
         vpaned.add1(sw_up)
-        vpaned.add2(sw_down)
+        vpaned.add2(hpaned_down)
 
         self.root.add(vbox)
 
@@ -215,7 +239,12 @@ class GUI_Controller:
             # There is no function currently being shown
             return
         insnCursor = self.instructionView.get_cursor()[0]
-        self.instructionView.set_model( InstructionModel.InfoModel(curFunction, self.markPattern).getModel() )
+        curInstruction = None
+        if insnCursor:
+            curInstruction = self.instructionView.get_model()[insnCursor][InstructionModel.COLUMN_INSTRUCTION]
+
+        self.instructionModel.setCurInstruction(curInstruction)
+        self.instructionModel.refreshModel()
         try:
             self.instructionView.set_cursor(insnCursor)
             self.instructionView.scroll_to_cell(insnCursor)
@@ -228,9 +257,7 @@ class GUI_Controller:
 
     def patternMatchBinCallback(self, entry, comboBox):
         markPattern = entry.get_text()
-        self.markPattern = re.compile(markPattern)
-
-        self.display.markPattern = self.markPattern
+        self.searchwordHighlighter.setSearchPattern(markPattern)
         self.redisplayFunction()
 
     def lookupFunction(self, val):
@@ -291,6 +318,21 @@ class GUI_Controller:
             if self.lookupFunction(val):
                 history.add(val)
 
+    def clearInstructionInfo(self):
+        self.instr_info_description.get_buffer().set_text('Not available')
+
+    def updateInstructionInfo(self, instruction):
+        # Check if this architecture supports instruction info
+        if not hasattr(self.fileContainer.getArch(), "getInstructionInfo"):
+            self.clearInstructionInfo()
+            return
+        instrInfo = self.fileContainer.getArch().getInstructionInfo(instruction)
+
+        self.instr_info_description.get_buffer().set_text(
+            instrInfo.get('shortinfo', '') + "\n" +  
+            instrInfo.get('description', '')
+            )
+
     def forward(self, filename=None):
         try:
             val = history.forward()
@@ -319,8 +361,8 @@ class GUI_Controller:
 class DisplayModel:
     """ Displays the Info_Model model in a view """
 
-    def __init__(self, markPattern):
-        self.markPattern = markPattern
+    def __init__(self, controller):
+        self.controller = controller
 
     def makeFunctionView( self, model ):
         """ Form a view for the Tree Model """
@@ -375,7 +417,7 @@ class DisplayModel:
         """
         Callback for interactive searches.
         """
-        entity = model[iter][9]
+        entity = model[iter][InstructionModel.COLUMN_INSTRUCTION]
         if isinstance(entity, StrEntity):
             return True
         return self.searchCommon(entity, key)
@@ -388,7 +430,9 @@ class DisplayModel:
         entity = model[iter][3]
         entity.link()
         history.add(entity.address)
-        model = InstructionModel.InfoModel(entity, self.markPattern).getModel()
+        self.controller.instructionModel = InstructionModel.InfoModel(entity, 
+            highlighters=self.controller.highlighters)
+        model = self.controller.instructionModel.getModel()
         self.insnView.set_model( model )
         self.insnView.connect( 'row-activated', self.insnRowActivated, model )
 
@@ -412,6 +456,7 @@ class DisplayModel:
 
         self.insnView.connect( 'row-activated', self.insnRowActivated, model )
         self.insnView.connect( 'move-cursor', self.insnMoveCursor, None )
+        self.insnView.connect( 'cursor-changed', self.insnCursorChanged )
         self.insnView.set_search_column(0)
         self.insnView.set_search_equal_func(self.insnSearchCallback, model)
 
@@ -436,10 +481,20 @@ class DisplayModel:
             self.insnView.append_column( col )
         return self.insnView
 
+    def insnCursorChanged(self, view):
+        model = view.get_model()
+        cur = model[view.get_cursor()[0]][InstructionModel.COLUMN_INSTRUCTION]
+        if isinstance(cur, Instruction):
+            self.controller.updateInstructionInfo(cur)
+            self.controller.instructionModel.setCurInstruction(cur)
+            self.controller.instructionModel.refreshModel()
+        else:
+            self.controller.clearInstructionInfo()
+
     def insnMoveCursor(self, view, step, count, user):
         model = view.get_model()
         try:
-            cur = model[view.get_cursor()[0]][9]
+            cur = model[view.get_cursor()[0]][InstructionModel.COLUMN_INSTRUCTION]
         except:
             # There is no model, just ignore
             return
@@ -467,7 +522,7 @@ class DisplayModel:
         model = view.get_model()
         functionModel = self.functionView.get_model()
         try:
-            entity = model[iter][9]
+            entity = model[iter][InstructionModel.COLUMN_INSTRUCTION]
         except IndexError:
             # If the index is outside of the model
             return

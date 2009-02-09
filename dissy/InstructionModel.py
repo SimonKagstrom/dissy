@@ -15,6 +15,7 @@ import gtk, gobject
 from Config import *
 from Function import Function
 from StrEntity import StrEntity
+from Instruction import Instruction
 
 def loadFile(fileName):
     pathsToSearch = ['.', '/usr/local/share/%s' % (PROGRAM_NAME).lower(),
@@ -38,25 +39,28 @@ red_arrow_right = loadFile("gfx/red_arrow_right.png")
 jump_pixmaps_right=[None, red_start_down, red_line, red_arrow_left, red_plus, red_plus]
 jump_pixmaps_left=[None, red_start_up, red_line, red_arrow_right, red_plus, red_plus]
 
-def markup(pattern, string, color):
-    s = ""
-    last = 0
-    for i in pattern.finditer(string):
-        span = i.span()
-        s = s + string[last:span[0]] + '<span foreground="' + color + '">' + string[span[0] : span[1] ] + '</span>'
-        last = span[1]
-    else:
-        s = s + string[last:]
-    return s
+(
+COLUMN_ADDR,
+COLUMN_LEFT_STATE2,
+COLUMN_LEFT_STATE1,
+COLUMN_LEFT_STATE0,
+COLUMN_STR_REPRESENTATION,
+COLUMN_RIGHT_STATE0,
+COLUMN_RIGHT_STATE1,
+COLUMN_RIGHT_STATE2,
+COLUMN_TARGET,
+COLUMN_INSTRUCTION,
+) = range(10)
 
 class InfoModel:
     """ The model class holds the information we want to display """
 
-    def __init__(self, function, markPattern = None):
+    def __init__(self, function, curInstruction = None, highlighters=[]):
         """ Sets up and populates our gtk.TreeStore """
 
-        self.markPattern = markPattern
         self.function = function
+        self.curInstruction = curInstruction
+        self.highlighters = highlighters
         self.tree_store = gtk.TreeStore( gobject.TYPE_STRING,
                                          gtk.gdk.Pixbuf,
                                          gtk.gdk.Pixbuf,
@@ -69,11 +73,9 @@ class InfoModel:
                                          gobject.TYPE_PYOBJECT
                                          )
         # Create the TreeStore
-        if function == None:
+        if self.function == None:
             return
-        if function.getAll() == []:
-            function.parse()
-            function.link()
+        self.lazyinitFunction()
 
         for insn in self.function.getAll():
             if isinstance(insn, StrEntity):
@@ -95,13 +97,12 @@ class InfoModel:
             if isinstance(insn.getOutLink(), Function):
                 target = insn.getOutLink().getLabel()
 
+            insnAddr = "0x%08x" % (insn.getAddress())
             insnStr = insn.getOpcode()
             argsStr = insn.getArgs()
-            if self.markPattern:
-                insnStr = markup(self.markPattern, insnStr, config.markupFgColor)
-                argsStr = markup(self.markPattern, argsStr, config.markupFgColor)
+
             strRepresentation = '<span foreground="%s">%s</span>\t%s' % (config.insnFgColor, insnStr, argsStr)
-            insn.iter = self.tree_store.append( None, ("0x%08x" % insn.getAddress(),
+            insn.iter = self.tree_store.append( None, (insnAddr,
                                                        jump_pixmaps_left[insn.left_state[2]],
                                                        jump_pixmaps_left[insn.left_state[1]],
                                                        jump_pixmaps_left[insn.left_state[0]],
@@ -112,6 +113,32 @@ class InfoModel:
                                                        target,
                                                        insn
                                                        ))
+        self.refreshModel()
+
+    def refreshModel(self):
+        for iter in self.tree_store:
+            insn = iter[COLUMN_INSTRUCTION]
+            if isinstance(insn, Instruction):
+                insnAddr = "0x%08x" % (insn.getAddress())
+                insnStr = insn.getOpcode()
+                argsStr = insn.getArgs()
+                strRepresentation = '<span foreground="%s">%s</span>\t%s' % (config.insnFgColor, insnStr, argsStr)
+                iter[COLUMN_STR_REPRESENTATION] = strRepresentation
+                iter[COLUMN_ADDR] = insnAddr
+                for highlighter in self.highlighters:
+                    highlighter.highlight(iter, self.curInstruction)
+
+    def lazyinitFunction(self):
+        if self.function == None:
+            return
+        if self.function.getAll() == []:
+            self.function.parse()
+            self.function.link()
+
+    def setCurInstruction(self, curInstruction):
+        self.curInstruction = curInstruction
+        if self.function == None:
+            return
 
     def getModel(self):
         """ Returns the model """
