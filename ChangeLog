@@ -12,11 +12,11 @@ Dissy (9)
 
 	* Add licensing info to file headers and fix email address
 
-	* Convert tabs to spaces (fix from shiyee)
+	* Convert tabs to spaces (fix from Mads Chr. Olesen)
 
 	* Fix close of about dialogue (patch from Lubomir Rintel)
 
-	* Fix deprecated file dialogue (patch from shiyee, thanks)
+	* Fix deprecated file dialogue (patch from Mads Chr. Olesen, thanks)
 
 	-- Simon Kagstrom <simon.kagstrom@gmail.com>,
 
