@@ -253,6 +253,13 @@ class GUI_Controller:
 
     def toggleHighLevelCode(self, widget):
         config.showHighLevelCode = not config.showHighLevelCode
+        try:
+            fnCursor = self.functionView.get_cursor()[0]
+            curFunction = self.functionView.get_model()[fnCursor][3]
+        except TypeError:
+            # There is no function currently being shown
+            return
+        self.instructionView.set_model( InstructionModel.InfoModel(curFunction).getModel() )
         self.redisplayFunction()
 
     def patternMatchBinCallback(self, entry, comboBox):
