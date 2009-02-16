@@ -12,6 +12,9 @@
 ######################################################################
 import pygtk
 
+# General warning: The code in this file is pure horror! Go somewhere else
+# if you suffer from heart problems.
+
 pygtk.require('2.0')
 import gtk, gobject
 
