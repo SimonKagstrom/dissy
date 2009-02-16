@@ -1,4 +1,7 @@
 Dissy (9)
+	* Make toggling options persistent (save options so that they are
+	remembered on next start)
+
 	* Refactor highlighting in the Instruction model class to allow it to
 	be more easily extendible (Mads Chr. Olesen)
 

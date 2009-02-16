@@ -124,7 +124,7 @@ class GUI_Controller:
                                       ('Back', gtk.STOCK_GO_BACK, '_Back', '<Alt>Left',
                                        'Navigate backwards in history', lambda w: self.back()),
                                       ('Preferences', gtk.STOCK_PREFERENCES, '_Preferences', None,
-                                       'Configure preferences for %s' % (PROGRAM_NAME), lambda w: PreferencesDialogue()),
+                                       'Configure preferences for %s' % (PROGRAM_NAME), self.preferencesDialogue),
                                       ('Toggle source', None, '_Toggle source', None,
                                        'Toggle the showing of high-level source', self.toggleHighLevelCode),
                                       ('Toggle information box', None, 'Toggle _information box', None,
@@ -208,6 +208,9 @@ class GUI_Controller:
 
         self.root.show_all()
 
+        # Make the info box visible or not depending on the configuration
+        self.setInformationBox()
+
     def loadFile(self, filename=None):
         if filename == None:
             if not self.fileContainer:
@@ -255,6 +258,7 @@ class GUI_Controller:
 
     def toggleHighLevelCode(self, widget):
         config.showHighLevelCode = not config.showHighLevelCode
+        config.save()
         try:
             fnCursor = self.functionView.get_cursor()[0]
             curFunction = self.functionView.get_model()[fnCursor][3]
@@ -264,17 +268,19 @@ class GUI_Controller:
         self.instructionView.set_model( InstructionModel.InfoModel(curFunction).getModel() )
         self.redisplayFunction()
 
-    def toggleInformationBox(self, widget):
-        if self.instr_info_description.get_property('visible'):
-            self.instr_info_description.set_property('visible', False)
-            self.vpaned.remove(self.hpaned_down)
-            self.hpaned_down.remove(self.sw_down)
-            self.vpaned.add2(self.sw_down)
+    def setInformationBox(self):
+        if config.showInstructionInformationBox:
+            self.vbox_instr_info.show()
         else:
-            self.instr_info_description.set_property('visible', True)
-            self.vpaned.remove(self.sw_down)
-            self.hpaned_down.add1(self.sw_down)
-            self.vpaned.add2(self.hpaned_down)
+            self.vbox_instr_info.hide()
+
+    def toggleInformationBox(self, widget):
+        config.showInstructionInformationBox = not config.showInstructionInformationBox
+        config.save()
+        self.setInformationBox()
+
+    def preferencesDialogue(self, widget):
+        pd = PreferencesDialogue(self)
 
     def patternMatchBinCallback(self, entry, comboBox):
         markPattern = entry.get_text()

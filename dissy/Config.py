@@ -26,6 +26,7 @@ class Config:
         self.defaults["insnFgColor"] = "blue"
         self.defaults["highLevelCodeFgColor"] = "grey50"
         self.defaults["showHighLevelCode"] = True
+        self.defaults["showInstructionInformationBox"] = True
         self.defaults["objdump"] = "objdump"
         self.defaults["readelf"] = "readelf"
         self.defaults["nm"] = "nm"
@@ -38,6 +39,7 @@ class Config:
         self.insnFgColor = self.getDefault("insnFgColor")
         self.highLevelCodeFgColor = self.getDefault("highLevelCodeFgColor")
         self.showHighLevelCode = self.getDefault("showHighLevelCode")
+        self.showInstructionInformationBox = self.getDefault("showInstructionInformationBox")
         self.objdump = self.getDefault("objdump")
         self.readelf = self.getDefault("readelf")
         self.nm = self.getDefault("nm")
@@ -47,6 +49,7 @@ class Config:
         self.insnFgColor = other.insnFgColor
         self.highLevelCodeFgColor = other.highLevelCodeFgColor
         self.showHighLevelCode = other.showHighLevelCode
+        self.showInstructionInformationBox = other.showInstructionInformationBox
         self.objdump = other.objdump
         self.readelf = other.readelf
         self.nm = other.nm

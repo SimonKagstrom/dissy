@@ -21,7 +21,9 @@ def colorToString(color):
     return "#%04x%04x%04x" % (color.red, color.green, color.blue)
 
 class PreferencesDialogue:
-    def __init__(self, w=None):
+    def __init__(self, main_program):
+        self.main_program = main_program
+
         dialog = gtk.Dialog("%s - Preferences" % (PROGRAM_NAME))
         defaults = gtk.Button("Defaults")
         cancel = gtk.Button("Cancel", gtk.STOCK_CANCEL)
@@ -36,18 +38,22 @@ class PreferencesDialogue:
         highLevelColor = gtk.ColorButton(gtk.gdk.color_parse(config.highLevelCodeFgColor))
 
         showHighLevel = gtk.CheckButton("Show high level code")
+        showInstructionInfo = gtk.CheckButton("Show instruction information")
 
         cancel.connect("clicked", lambda w: dialog.destroy())
         ok.connect("clicked", self.okSelected,
-                   dialog, objdump, readelf, nm, showHighLevel, insnColor, markupColor, highLevelColor)
+                   dialog, objdump, readelf, nm, showHighLevel,
+                   showInstructionInfo, insnColor, markupColor, highLevelColor)
         defaults.connect("clicked", self.defaultsSelected,
-                         objdump, readelf, nm, showHighLevel, insnColor, markupColor, highLevelColor)
+                         objdump, readelf, nm, showHighLevel, showInstructionInfo,
+                         insnColor, markupColor, highLevelColor)
 
         objdump.set_text(config.objdump)
         readelf.set_text(config.readelf)
         nm.set_text(config.nm)
 
         showHighLevel.set_active(config.showHighLevelCode)
+        showInstructionInfo.set_active(config.showInstructionInformationBox)
 
         table.attach(gtk.Label("Objdump:"), 0, 1, 0, 1,  ypadding=2)
         table.attach(gtk.Label("Readelf:"), 0, 1, 1, 2,  ypadding=2)
@@ -66,6 +72,7 @@ class PreferencesDialogue:
         table.attach(highLevelColor, 1, 2, 5, 6,  ypadding=2)
 
         table.attach(showHighLevel, 0, 2, 6, 7,  ypadding=6)
+        table.attach(showInstructionInfo, 0, 2, 7, 8,  ypadding=6)
 
         dialog.vbox.pack_start(table, True, True, 0)
         dialog.action_area.pack_start(defaults, True, True, 0)
@@ -73,7 +80,7 @@ class PreferencesDialogue:
         dialog.action_area.pack_start(ok, True, True, 0)
         dialog.show_all()
 
-    def defaultsSelected(self, widget, objdump, readelf, nm, showHighLevel, insnColor, markupColor, highLevelColor):
+    def defaultsSelected(self, widget, objdump, readelf, nm, showHighLevel, showInstructionInfo, insnColor, markupColor, highLevelColor):
         config.restoreAllDefaults()
         objdump.set_text(config.objdump)
         readelf.set_text(config.readelf)
@@ -84,8 +91,10 @@ class PreferencesDialogue:
         highLevelColor.set_color( gtk.gdk.color_parse(config.getDefault("highLevelCodeFgColor")) )
 
         showHighLevel.set_active(config.showHighLevelCode)
+        showInstructionInfo.set_active(config.showInstructionInfo)
 
-    def okSelected(self, widget, dialog, objdump, readelf, nm, showHighLevelCode, insnColor, markupColor, highLevelColor):
+    def okSelected(self, widget, dialog, objdump, readelf, nm,
+                   showHighLevelCode, showInstructionInfo, insnColor, markupColor, highLevelColor):
         if objdump.get_text() == "":
             config.objdump = config.getDefault("objdump")
         else:
@@ -106,6 +115,9 @@ class PreferencesDialogue:
         config.highLevelCodeFgColor = colorToString(highLevelColor.get_color())
 
         config.showHighLevelCode = showHighLevelCode.get_active()
+        config.showInstructionInformationBox = showInstructionInfo.get_active()
         config.save()
 
         dialog.destroy()
+        self.main_program.setInformationBox()
+
