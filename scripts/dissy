@@ -350,7 +350,7 @@ class GUI_Controller:
         instrInfo = self.fileContainer.getArch().getInstructionInfo(instruction)
 
         self.instr_info_description.get_buffer().set_text(
-            instrInfo.get('shortinfo', '') + "\n" +
+            instrInfo.get('shortinfo', '') + "\n\n" +
             instrInfo.get('description', '')
             )
 
