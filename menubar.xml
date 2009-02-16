@@ -12,6 +12,7 @@
       <menu action="Options">
         <menuitem action="Preferences"/>
         <menuitem action="Toggle source"/>
+        <menuitem action="Toggle information box"/>
       </menu>
       <menu action="Help">
         <menuitem action="About"/>

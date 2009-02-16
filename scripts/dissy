@@ -127,6 +127,8 @@ class GUI_Controller:
                                        'Configure preferences for %s' % (PROGRAM_NAME), lambda w: PreferencesDialogue()),
                                       ('Toggle source', None, '_Toggle source', None,
                                        'Toggle the showing of high-level source', self.toggleHighLevelCode),
+                                      ('Toggle information box', None, 'Toggle _information box', None,
+                                       'Toggle the showing of the instruction information box', self.toggleInformationBox),
                                       ('Help', None, '_Help'),
                                       ('About', gtk.STOCK_ABOUT, '_About', None,
                                        'About %s' % PROGRAM_NAME, self.about),
@@ -167,21 +169,21 @@ class GUI_Controller:
 
         sw_up = gtk.ScrolledWindow()
         sw_up.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
-        sw_down = gtk.ScrolledWindow()
-        sw_down.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+        self.sw_down = gtk.ScrolledWindow()
+        self.sw_down.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
 
-        vpaned = gtk.VPaned()
-        vpaned.set_position(650/3)
-        vbox.pack_start(vpaned)
+        self.vpaned = gtk.VPaned()
+        self.vpaned.set_position(650/3)
+        vbox.pack_start(self.vpaned)
 
-        vbox.set_focus_chain([ vpaned ])
+        vbox.set_focus_chain([ self.vpaned ])
 
         # Get the model and attach it to the view
         self.functionView, self.instructionView = self.display.makeViews( functionModel, insnModel )
 
         # Add instruction info section
-        hpaned_down = gtk.HPaned()
-        hpaned_down.set_position(900/3*2)
+        self.hpaned_down = gtk.HPaned()
+        self.hpaned_down.set_position(900/3*2)
         self.vbox_instr_info = gtk.VBox()
 
         self.instr_info_label = gtk.Label("<b>Instruction Information</b>")
@@ -193,14 +195,14 @@ class GUI_Controller:
         self.instr_info_description.set_wrap_mode(gtk.WRAP_WORD)
         self.vbox_instr_info.pack_start(self.instr_info_description)
 
-        sw_down.add(self.instructionView)
-        hpaned_down.pack1(sw_down, resize=True)
-        hpaned_down.pack2(self.vbox_instr_info, resize=False)
+        self.sw_down.add(self.instructionView)
+        self.hpaned_down.pack1(self.sw_down, resize=True)
+        self.hpaned_down.pack2(self.vbox_instr_info, resize=False)
 
         # Add our view into the scrolled window
         sw_up.add(self.functionView)
-        vpaned.add1(sw_up)
-        vpaned.add2(hpaned_down)
+        self.vpaned.add1(sw_up)
+        self.vpaned.add2(self.hpaned_down)
 
         self.root.add(vbox)
 
@@ -261,6 +263,18 @@ class GUI_Controller:
             return
         self.instructionView.set_model( InstructionModel.InfoModel(curFunction).getModel() )
         self.redisplayFunction()
+
+    def toggleInformationBox(self, widget):
+        if self.instr_info_description.get_property('visible'):
+            self.instr_info_description.set_property('visible', False)
+            self.vpaned.remove(self.hpaned_down)
+            self.hpaned_down.remove(self.sw_down)
+            self.vpaned.add2(self.sw_down)
+        else:
+            self.instr_info_description.set_property('visible', True)
+            self.vpaned.remove(self.sw_down)
+            self.hpaned_down.add1(self.sw_down)
+            self.vpaned.add2(self.hpaned_down)
 
     def patternMatchBinCallback(self, entry, comboBox):
         markPattern = entry.get_text()
