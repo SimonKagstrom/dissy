@@ -49,7 +49,7 @@ class Config:
         self.insnFgColor = other.insnFgColor
         self.highLevelCodeFgColor = other.highLevelCodeFgColor
         self.showHighLevelCode = other.showHighLevelCode
-        self.showInstructionInformationBox = other.showInstructionInformationBox
+        self.showInstructionInformationBox = getattr(other, "showInstructionInformationBox", True)
         self.objdump = other.objdump
         self.readelf = other.readelf
         self.nm = other.nm
