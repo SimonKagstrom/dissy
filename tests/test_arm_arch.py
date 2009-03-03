@@ -89,6 +89,8 @@ class TestArmArch(unittest.TestCase):
         #multiplication
         self.assertEqual(self.arch.parseArguments(instr('mul', 'r0, r3, r2')),
             (['r3', 'r2'], ['r0']))
+        self.assertEqual(self.arch.parseArguments(instr('mla', 'r1, r2, r3, r1')),
+            (['r2', 'r3', 'r1'], ['r1']))
 
         #Push, pop
         self.assertEqual(self.arch.parseArguments(instr('push', '{lr}')),

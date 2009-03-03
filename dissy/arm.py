@@ -218,6 +218,9 @@ class ArmArchitecture(architecture.Architecture):
         elif instr.getOpcode() in ['smull' + c for c in arm_conditions.keys() + ['']]:
             regwrite = [args[0], args[1]]
             regread = [args[2], args[3]]
+        elif instr.getOpcode() in ['mla' + c for c in arm_conditions.keys() + ['']]:
+            regwrite = [args[0]]
+            regread = args[1:]
         elif instr.getOpcode() in ['mul' + c for c in arm_conditions.keys() + ['']]:
             regwrite = [args[0]]
             regread = [args[1], args[2]]
