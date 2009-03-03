@@ -66,7 +66,7 @@ Canonical form of "ldm SP!, <reglist>\"""",
     'rsb': 'Reverse Subtract',
 }
 
-conditions = {
+arm_conditions = {
     'cs': 'Carry Set',
     'cc': 'Carry Clear',
     'eq': 'Equal (Zero Set)',
@@ -100,8 +100,8 @@ Change to Thumb mode if Rm[0] is 1, change to ARM mode if Rm[0] is 0""",
         }
 
     for i in conditional_instructions:
-        for c in conditions:
-            arm_instr_descriptions[i + c] = conditional_instructions[i] % (conditions[c])
+        for c in arm_conditions:
+            arm_instr_descriptions[i + c] = conditional_instructions[i] % (arm_conditions[c])
             arm_conditionflag_users += [i + c]
     arm_lists_inited = True
 
@@ -178,49 +178,51 @@ class ArmArchitecture(architecture.Architecture):
             regwrite = [args[0]]
             regread = [a for a in args[1:] if isRegister(a)]
         #branches
-        elif instr.getOpcode() in ['b' + c for c in conditions.keys() + ['']]:
+        elif instr.getOpcode() in ['b' + c for c in arm_conditions.keys() + ['']]:
             regwrite = ['pc']
             regread = []
-        elif instr.getOpcode() in ['bl' + c for c in conditions.keys() + ['']]:
+        elif instr.getOpcode() in ['bl' + c for c in arm_conditions.keys() + ['']]:
             regwrite = ['pc', 'lr']
             regread = []
-        elif instr.getOpcode() in ['bx' + c for c in conditions.keys() + ['']]:
+        elif instr.getOpcode() in ['bx' + c for c in arm_conditions.keys() + ['']]:
             regwrite = ['pc']
             regread = [args[0]]
-        elif instr.getOpcode() in ['blx' + c for c in conditions.keys() + ['']]:
+        elif instr.getOpcode() in ['blx' + c for c in arm_conditions.keys() + ['']]:
             regwrite = ['pc']
             regread = isRegister(args[0]) and [args[0]] or []
         #load
-        elif instr.getOpcode() in ['ldr' + c for c in conditions.keys() + ['']]:
+        elif instr.getOpcode() in ['ldr' + c for c in arm_conditions.keys() + ['']]:
             regwrite = [args[0]]
             regread = []
             if args[1].startswith('['):
                 offsetl = parseComSepList(args[1][1:-1])
                 regread = [r for r in offsetl if isRegister(r)]
         #store
-        elif instr.getOpcode() in ['str' + c for c in conditions.keys() + ['']]:
+        elif instr.getOpcode() in ['str' + c for c in arm_conditions.keys() + ['']]:
             regwrite = []
             regread = [args[0]]
             if args[1].startswith('['):
                 offsetl = parseComSepList(args[1][1:-1])
                 regread += [r for r in offsetl if isRegister(r)]
         #push
-        elif instr.getOpcode() in ['push' + c for c in conditions.keys() + ['']]:
+        elif instr.getOpcode() in ['push' + c for c in arm_conditions.keys() + ['']]:
             regwrite = ['sp']
             regread = ['sp']
             reglist = parseComSepList(args[0][1:-1])
             regread += reglist
-        elif instr.getOpcode() in ['pop' + c for c in conditions.keys() + ['']]:
+        elif instr.getOpcode() in ['pop' + c for c in arm_conditions.keys() + ['']]:
             regwrite = ['sp']
             regread = ['sp']
             reglist = parseComSepList(args[0][1:-1])
             regwrite += reglist
-        elif instr.getOpcode() in ['smull' + c for c in conditions.keys() + ['']]:
+        elif instr.getOpcode() in ['smull' + c for c in arm_conditions.keys() + ['']]:
             regwrite = [args[0], args[1]]
             regread = [args[2], args[3]]
-        elif instr.getOpcode() in ['mul' + c for c in conditions.keys() + ['']]:
+        elif instr.getOpcode() in ['mul' + c for c in arm_conditions.keys() + ['']]:
             regwrite = [args[0]]
             regread = [args[1], args[2]]
+        elif instr.getOpcode() == '.word':
+            return ([], [])
         else:
             raise ValueError("Unknown instruction opcode: " + str(instr))
 
