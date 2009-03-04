@@ -16,7 +16,7 @@ from dissy import InstructionModel
 from Instruction import Instruction
 import re
 
-class InstructionModelHighlighter():
+class InstructionModelHighlighter:
     def __init__(self):
         pass
 
