@@ -1,4 +1,7 @@
 Dissy (9)
+	* Don't allow information box to grab focus when "tabbing" through the
+	windows
+
 	* Register value analysis added for Arm. This is still inactive
 	though (Mads Chr. Olesen)
 

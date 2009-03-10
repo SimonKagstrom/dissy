@@ -176,8 +176,6 @@ class GUI_Controller:
         self.vpaned.set_position(650/3)
         vbox.pack_start(self.vpaned)
 
-        vbox.set_focus_chain([ self.vpaned ])
-
         # Get the model and attach it to the view
         self.functionView, self.instructionView = self.display.makeViews( functionModel, insnModel )
 
@@ -205,6 +203,10 @@ class GUI_Controller:
         self.vpaned.add2(self.hpaned_down)
 
         self.root.add(vbox)
+
+        # Setup focus chains (no tab-to-focus in the information box)
+        vbox.set_focus_chain([ self.vpaned ])
+        self.hpaned_down.set_focus_chain([ self.sw_down ])
 
         self.root.show_all()
 
