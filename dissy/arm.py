@@ -169,10 +169,18 @@ class ArmArchitecture(architecture.Architecture):
                     'pc']: #r15, program counter
                 return True
             return False
-
+        def isValue(s):
+            if s[:1] == '#':
+	        if s[1:].isdigit():
+                    return True
+            return False
+        regwrite = []
+        regread = []
+        values = []
         args = parseComSepList(instr.args)
-        if instr.getOpcode()[:3] == 'cmp':
-            regwrite = []
+        values = [int(a[1:]) for a in args if isValue(a)]
+
+        if instr.getOpcode()[:3] == 'cmp':            
             regread = [a for a in args if isRegister(a)]
         elif instr.getOpcode()[:3] in ['sub', 'add', 'lsl', 'asr', 'rsb', 'mov']:
             regwrite = [args[0]]
@@ -180,10 +188,8 @@ class ArmArchitecture(architecture.Architecture):
         #branches
         elif instr.getOpcode() in ['b' + c for c in arm_conditions.keys() + ['']]:
             regwrite = ['pc']
-            regread = []
         elif instr.getOpcode() in ['bl' + c for c in arm_conditions.keys() + ['']]:
             regwrite = ['pc', 'lr']
-            regread = []
         elif instr.getOpcode() in ['bx' + c for c in arm_conditions.keys() + ['']]:
             regwrite = ['pc']
             regread = [args[0]]
@@ -193,13 +199,11 @@ class ArmArchitecture(architecture.Architecture):
         #load
         elif instr.getOpcode() in ['ldr' + c for c in arm_conditions.keys() + ['']]:
             regwrite = [args[0]]
-            regread = []
             if args[1].startswith('['):
                 offsetl = parseComSepList(args[1][1:-1])
                 regread = [r for r in offsetl if isRegister(r)]
         #store
         elif instr.getOpcode() in ['str' + c for c in arm_conditions.keys() + ['']]:
-            regwrite = []
             regread = [args[0]]
             if args[1].startswith('['):
                 offsetl = parseComSepList(args[1][1:-1])
@@ -225,8 +229,8 @@ class ArmArchitecture(architecture.Architecture):
             regwrite = [args[0]]
             regread = [args[1], args[2]]
         elif instr.getOpcode() == '.word':
-            return ([], [])
+            return ([], [], [])
         else:
             raise ValueError("Unknown instruction opcode: " + str(instr))
 
-        return (regread, regwrite)
+        return (regread, regwrite, values)
