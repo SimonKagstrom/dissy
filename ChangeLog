@@ -1,4 +1,7 @@
 Dissy (9)
+	* Register value analysis added for Arm. This is still inactive
+	though (Mads Chr. Olesen)
+
 	* Make toggling options persistent (save options so that they are
 	remembered on next start)
 
