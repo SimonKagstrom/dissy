@@ -27,7 +27,7 @@ Dissy (9)
 
 	* Fix deprecated file dialogue (patch from Mads Chr. Olesen, thanks)
 
-	-- Simon Kagstrom <simon.kagstrom@gmail.com>,
+	-- Simon Kagstrom <simon.kagstrom@gmail.com>, Wed Mar 11 19:09:36 CET 2009
 
 Dissy (8)
 	* Special-case Linux crashes. This allows you to paste things like
