@@ -13,7 +13,7 @@
 import cPickle, os, os.path
 
 PROGRAM_NAME="Dissy"
-PROGRAM_VERSION="9"
+PROGRAM_VERSION="10"
 PROGRAM_URL="http://dissy.googlecode.com"
 
 class Config:
