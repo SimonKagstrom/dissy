@@ -42,6 +42,7 @@ arm_instr_descriptions = {
     'bal': 'Unconditional Branch',
     'blal': 'Unconditional Branch and Link',
     'mov': 'Move',
+    'mvn': 'Move and negate (XOR 0xFFFFFFFF)',
     'bx': """Branch and eXchange
 PC := Rm""",
     'bl': """Branch with Link
@@ -182,7 +183,7 @@ class ArmArchitecture(architecture.Architecture):
 
         if instr.getOpcode()[:3] == 'cmp':            
             regread = [a for a in args if isRegister(a)]
-        elif instr.getOpcode()[:3] in ['sub', 'add', 'lsl', 'asr', 'rsb', 'mov']:
+        elif instr.getOpcode()[:3] in ['sub', 'add', 'lsl', 'asr', 'rsb', 'mov', 'and', 'mvn']:
             regwrite = [args[0]]
             regread = [a for a in args[1:] if isRegister(a)]
         #branches
@@ -225,7 +226,8 @@ class ArmArchitecture(architecture.Architecture):
         elif instr.getOpcode() in ['mla' + c for c in arm_conditions.keys() + ['']]:
             regwrite = [args[0]]
             regread = args[1:]
-        elif instr.getOpcode() in ['mul' + c for c in arm_conditions.keys() + ['']]:
+        elif instr.getOpcode() in ['mul' + c for c in arm_conditions.keys() + ['']] + \
+        ['muls' + c for c in arm_conditions.keys() + ['']]:
             regwrite = [args[0]]
             regread = [args[1], args[2]]
         elif instr.getOpcode() == '.word':

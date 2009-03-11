@@ -102,5 +102,11 @@ class TestArmArch(unittest.TestCase):
         self.assertEqual(self.arch.parseArguments(instr('pop', '{lr}')),
             (['sp'], ['sp', 'lr'], []))
 
+        #Assorted
+        self.assertEqual(self.arch.parseArguments(instr('and', 'r3, r3, #31')),
+            (['r3'], ['r3'], [31]))
+        self.assertEqual(self.arch.parseArguments(instr('muls', 'r3, r4, r3')),
+            (['r4', 'r3'], ['r3'], []))
+
 if __name__ == '__main__':
     unittest.main()
