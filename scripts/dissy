@@ -332,6 +332,7 @@ there, promote it to the top of the list"""
         comboBox.prepend_text(txt)
 
     def lookupWord(self, word):
+        """Lookup a word /address"""
         # Special-case Linux crashes
         r = linuxKernelCrashRegexp.match(word)
         if r != None:
