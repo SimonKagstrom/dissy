@@ -314,13 +314,31 @@ class GUI_Controller:
         history.enable()
         return False
 
+    def addPasteBinEntry(self, comboBox, txt):
+        """Add an entry to the pasteBin ComboBox. If the same entry is already
+there, promote it to the top of the list"""
+        count = 0
+        found = -1
+        for item in iter(comboBox.get_model()):
+            if item[0] == txt:
+                found = count
+            count = count + 1
+
+        # If it's found, remove it from the list
+        if found != -1:
+            comboBox.remove_text(found)
+
+        # ... and add it again
+        comboBox.prepend_text(txt)
+
     def pasteBinCallback(self, entry, comboBox):
         """
         Called to lookup a symbol / address. Looks up a label or an
         address.
         """
         txt = entry.get_text()
-        comboBox.prepend_text(txt)
+
+        self.addPasteBinEntry(comboBox, txt)
 
         # Split the input in words and navigate to them
         for word in txt.split():
