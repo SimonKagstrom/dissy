@@ -1,4 +1,9 @@
 Dissy (10)
+	* Usability improvement: When an entry is selected in the combo box
+	for the location bar, look it up directly
+
+	* Usability improvement: Only insert unique entries in the location
+	bar ("paste bin"), and move the entry to the top if it already exists
 
 	-- Simon Kagstrom <simon.kagstrom@gmail.com>
 
