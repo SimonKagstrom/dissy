@@ -151,7 +151,8 @@ class GUI_Controller:
         patternMatchBin.add_accelerator("grab-focus", self.accelgroup,
                                         ord('K'), gtk.gdk.CONTROL_MASK, gtk.ACCEL_VISIBLE)
 
-        pasteBin.child.connect("activate", self.pasteBinCallback, pasteBin)
+        pasteBin.child.connect("activate", self.pasteBinEntryActivated, pasteBin)
+        pasteBin.connect("changed", self.pasteBinChanged, pasteBin)
 
         patternMatchBin.connect("activate", self.patternMatchBinCallback, patternMatchBin)
 
@@ -356,7 +357,7 @@ there, promote it to the top of the list"""
             history.add(val)
 
 
-    def pasteBinCallback(self, entry, comboBox):
+    def pasteBinEntryActivated(self, entry, comboBox):
         """
         Called to lookup a symbol / address. Looks up a label or an
         address.
@@ -368,6 +369,17 @@ there, promote it to the top of the list"""
         # Split the input in words and navigate to them
         for word in txt.split():
             self.lookupWord(word)
+
+    def pasteBinChanged(self, comboBox, usr):
+        """
+        Called when an entry in the paste bin list is selected
+        """
+        which = comboBox.get_active()
+        if which != -1:
+            txt = comboBox.get_model()[which][0]
+            self.addPasteBinEntry(comboBox, txt)
+            for word in txt.split():
+                self.lookupWord(word)
 
     def clearInstructionInfo(self):
         self.instr_info_description.get_buffer().set_text('Not available')
