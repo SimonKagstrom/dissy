@@ -1,6 +1,6 @@
 Dissy (10)
 	* ARM instruction information for more instructions: lsr, ldm, stm,
-	ldrb, strb
+	ldrb, strb, cmn, eor, eors, orr, orrs, ldrh, strh
 	(Mads Chr. Olesen)
 
 	* Usability improvement: When an entry is selected in the combo box

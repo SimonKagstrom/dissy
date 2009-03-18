@@ -35,6 +35,8 @@ class TestArmArch(unittest.TestCase):
             ([], ['r0'], [1]))
         self.assertEqual(self.arch.parseArguments(instr('cmp', 'r0, #1')),
             (['r0'], [], [1]))
+        self.assertEqual(self.arch.parseArguments(instr('cmn', 'r0, #1')),
+            (['r0'], [], [1]))
 
         #add, sub
         self.assertEqual(self.arch.parseArguments(instr('sub', 'sp, sp, #4')),
@@ -77,6 +79,8 @@ class TestArmArch(unittest.TestCase):
             (['lr'], ['r3'], []))
         self.assertEqual(self.arch.parseArguments(instr('ldm', 'r0, {r0, r1}')),
             (['r0'], ['r0', 'r1'], []))
+        self.assertEqual(self.arch.parseArguments(instr('ldrh', 'r3, [r1, r4]')),
+            (['r1', 'r4'], ['r3'], []))
 
         #dynamic store
         self.assertEqual(self.arch.parseArguments(instr('str', 'r0, [r3]')),
@@ -87,6 +91,8 @@ class TestArmArch(unittest.TestCase):
             (['r0', 'r4'], [], []))
         self.assertEqual(self.arch.parseArguments(instr('stm', 'sp, {r2, r3}')),
             (['sp', 'r2', 'r3'], [], []))
+        self.assertEqual(self.arch.parseArguments(instr('strh', 'lr, [r2, fp]')),
+            (['lr', 'r2', 'fp'], [], []))
 
         #unimplemented instruction type
         self.assertRaises(ValueError, self.arch.parseArguments, instr('abemad', 'r1, r0'))
@@ -116,6 +122,14 @@ class TestArmArch(unittest.TestCase):
             (['r3'], ['r3'], [31]))
         self.assertEqual(self.arch.parseArguments(instr('muls', 'r3, r4, r3')),
             (['r4', 'r3'], ['r3'], []))
+        self.assertEqual(self.arch.parseArguments(instr('eor', 'r2, r2, r0')),
+            (['r2', 'r0'], ['r2'], []))
+        self.assertEqual(self.arch.parseArguments(instr('eors', 'r2, r2, r0')),
+            (['r2', 'r0'], ['r2'], []))
+        self.assertEqual(self.arch.parseArguments(instr('orr', 'r2, r2, r0')),
+            (['r2', 'r0'], ['r2'], []))
+        self.assertEqual(self.arch.parseArguments(instr('orrs', 'r2, r2, r0')),
+            (['r2', 'r0'], ['r2'], []))
 
 if __name__ == '__main__':
     unittest.main()

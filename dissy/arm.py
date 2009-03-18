@@ -15,89 +15,96 @@ from dissy.architecture import Architecture
 
 arm_jumps = ['b',
              'bcc',
+             'bcs',
+             'beq',
+             'bgt',
              'bl',
              'ble',
-             'bne',
              'bleq',
              'blt',
-             'bgt',
-             'beq',
-             'bcs',
+             'bne'
              ]
 arm_calls = ['bl']
-arm_conditionflag_setters = ['cmp'] + \
+arm_conditionflag_setters = ['cmp', 'cmn'] + \
     [i + "s" for i in
     ['mul', 'mla', 'umull', 'umlal', 'smull',
-    'smlal', 'mov', 'mvn', 'asr', 'lsl', 'lsr', 'ror', 'rrx',] #TODO more
+    'smlal', 'mov', 'mvn', 'asr', 'lsl', 'lsr', 'ror', 'rrx'] #TODO more
     ]
 arm_conditionflag_users = ['']
 
 arm_instr_descriptions = {
-    'cmp': 'Compare two values, and sets the condition flags',
     'adc': 'Add with carry',
     'add': 'Add',
-    'sub': 'Subtract',
     'and': 'Logical and',
-    'bic': 'Bit Clear',
+    'asr': 'Arithmetic Shift Right',
     'bal': 'Unconditional Branch',
+    'bic': 'Bit Clear',
     'blal': 'Unconditional Branch and Link',
-    'mov': 'Move',
-    'mvn': 'Move and negate (XOR 0xFFFFFFFF)',
-    'bx': """Branch and eXchange
-PC := Rm""",
     'bl': """Branch with Link
 LR := Address of next instruction, PC := label""",
-    'push': """Push on the stack.
-Canonical form of "stmdb SP!, <reglist>\"""",
-    'pop': """Pop from the stack.
-Canonical form of "ldm SP!, <reglist>\"""",
-    'asr': 'Arithmetic Shift Right',
-    'mul': 'Multiply',
-    'muls': 'Multiply and set condition flags',
-    'mla': 'Multiply and Accumulate',
-    'mls': 'Multiply and Subtract',
-    'smull': """Signed Multiply Long
-%(arg1)s,%(arg2)s := signed(%(arg3)s * %(arg4)s)""",
+    'bx': """Branch and eXchange
+PC := Rm""",
+    'cmn': 'Compare (negative) two values and set condition flags',
+    'cmp': 'Compare two values and set condition flags',
+    'eor': 'Bitwise Exclusive OR',
+    'eors': 'Bitwise Exclusive OR and set condition flags',
     'ldr': 'Load (from memory to register)',
-    'str': 'Store (from register to memory)',
     'lsl': 'Logical Shift Left',
     'lsls': 'Logical Shift Left and set condition flags',
     'lsr': 'Logical Shift Right',
     'lsr': 'Logical Shift Right and set condition flags',
+    'mla': 'Multiply and Accumulate',
+    'mls': 'Multiply and Subtract',
+    'mov': 'Move',
+    'mul': 'Multiply',
+    'muls': 'Multiply and set condition flags',
+    'mvn': 'Move and negate (XOR 0xFFFFFFFF)',
+    'orr': 'Bitwise OR',
+    'orrs': 'Bitwise OR and set conditional flags',
+    'pop': """Pop from the stack.
+Canonical form of "ldm SP!, <reglist>\"""",
+    'push': """Push on the stack.
+Canonical form of "stmdb SP!, <reglist>\"""",
     'rsb': 'Reverse Subtract',
-}
+    'smull': """Signed Multiply Long
+%(arg1)s,%(arg2)s := signed(%(arg3)s * %(arg4)s)""",
+    'str': 'Store (from register to memory)',
+    'sub': 'Subtract'
+    }
 
 arm_conditions = {
-    'cs': 'Carry Set',
     'cc': 'Carry Clear',
+    'cs': 'Carry Set',
     'eq': 'Equal (Zero Set)',
-    'ne': 'Not Equal (Zero Clear)',
-    'vs': 'Overflow Set',
-    'vc': 'Overflow Clear',
-    'gt': 'Signed Greater Than',
-    'lt': 'Signed Less Than',
     'ge': 'Signed Greater than or Equal',
-    'le': 'Signed Less than or Equal',
-    'pl': 'Plus (Positive)',
-    'mi': 'Minus (Negative)',
+    'gt': 'Signed Greater Than',
     'hi': 'Unsigned Higher Than',
-    'lo': 'Unsigned Lower Than',
     'hs': 'Unsigned Higher or Same',
+    'le': 'Signed Less than or Equal',
+    'lo': 'Unsigned Lower Than',
     'ls': 'Unsigned Lower or Same',
+    'lt': 'Signed Less Than',
+    'mi': 'Minus (Negative)',
+    'ne': 'Not Equal (Zero Clear)',
+    'pl': 'Plus (Positive)',
+    'vc': 'Overflow Clear',
+    'vs': 'Overflow Set'
     }
 
 arm_lists_inited = False
 if not arm_lists_inited:
     conditional_instructions = {
+        'add': """Add on %s""",
         'b': """Branch on %s
 PC := label, label is this instruction +/-32Mb""",
+        'bl': """Branch and Link on %s""",
         'bx': """Branch and eXchange on %s
 PC := Rm
 Change to Thumb mode if Rm[0] is 1, change to ARM mode if Rm[0] is 0""",
-        'bl': """Branch and Link on %s""",
+        'eor': """Bitwise Exclusive OR on %s""",
         'mov': """Move on %s""",
-        'add': """Add on %s""",
-        'sub': """Subtract on %s""",
+        'orr': """Bitwise OR on %s""",
+        'sub': """Subtract on %s"""
         }
 
     for i in conditional_instructions:
@@ -188,9 +195,11 @@ class ArmArchitecture(architecture.Architecture):
         args = parseComSepList(instr.args)
         values = [int(a[1:]) for a in args if isValue(a)]
 
-        if instr.getOpcode()[:3] == 'cmp':            
+        if instr.getOpcode()[:3] in ['cmp', 'cmn']:
             regread = [a for a in args if isRegister(a)]
-        elif instr.getOpcode()[:3] in ['sub', 'add', 'lsl', 'lsr', 'asr', 'rsb', 'mov', 'and', 'mvn']:
+        elif instr.getOpcode()[:3] in ['add', 'and', 'asr', 'eor', 'lsl',
+                                       'lsr', 'mov', 'mvn', 'orr', 'rsb',
+                                       'sub']:
             regwrite = [args[0]]
             regread = [a for a in args[1:] if isRegister(a)]
         #branches
@@ -205,7 +214,7 @@ class ArmArchitecture(architecture.Architecture):
             regwrite = ['pc']
             regread = isRegister(args[0]) and [args[0]] or []
         #load
-        elif instr.getOpcode() in crossproduct(['ldr', 'ldrb'], arm_conditions.keys() + ['']):
+        elif instr.getOpcode() in crossproduct(['ldr', 'ldrb', 'ldrh'], arm_conditions.keys() + ['']):
             regwrite = [args[0]]
             if args[1].startswith('['):
                 offsetl = parseComSepList(args[1][1:-1])
@@ -214,7 +223,7 @@ class ArmArchitecture(architecture.Architecture):
             regread = [args[0]]
             regwrite = parseComSepList(args[1][1:-1])
         #store
-        elif instr.getOpcode() in crossproduct(['str', 'strb'], arm_conditions.keys() + ['']):
+        elif instr.getOpcode() in crossproduct(['str', 'strb', 'strh'], arm_conditions.keys() + ['']):
             regread = [args[0]]
             if args[1].startswith('['):
                 offsetl = parseComSepList(args[1][1:-1])
