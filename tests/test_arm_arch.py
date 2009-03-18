@@ -73,11 +73,15 @@ class TestArmArch(unittest.TestCase):
             (['pc'], ['r3'], []))
         self.assertEqual(self.arch.parseArguments(instr('ldr', 'r3, [r2, r0]')),
             (['r2', 'r0'], ['r3'], []))
+        self.assertEqual(self.arch.parseArguments(instr('ldm', 'r0, {r0, r1}')),
+            (['r0'], ['r0', 'r1'], []))
         #Dynamisk store
         self.assertEqual(self.arch.parseArguments(instr('str', 'r0, [r3]')),
             (['r0', 'r3'], [], []))
         self.assertEqual(self.arch.parseArguments(instr('str', 'r0, [r4, r5]')),
             (['r0', 'r4', 'r5'], [], []))
+        self.assertEqual(self.arch.parseArguments(instr('stm', 'sp, {r2, r3}')),
+            (['sp', 'r2', 'r3'], [], []))
 
         #unimplemented instruction type
         self.assertRaises(ValueError, self.arch.parseArguments, instr('abemad', 'r1, r0'))

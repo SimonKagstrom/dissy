@@ -183,7 +183,7 @@ class ArmArchitecture(architecture.Architecture):
 
         if instr.getOpcode()[:3] == 'cmp':            
             regread = [a for a in args if isRegister(a)]
-        elif instr.getOpcode()[:3] in ['sub', 'add', 'lsl', 'asr', 'rsb', 'mov', 'and', 'mvn']:
+        elif instr.getOpcode()[:3] in ['sub', 'add', 'lsl', 'lsr', 'asr', 'rsb', 'mov', 'and', 'mvn']:
             regwrite = [args[0]]
             regread = [a for a in args[1:] if isRegister(a)]
         #branches
@@ -203,12 +203,17 @@ class ArmArchitecture(architecture.Architecture):
             if args[1].startswith('['):
                 offsetl = parseComSepList(args[1][1:-1])
                 regread = [r for r in offsetl if isRegister(r)]
+        elif instr.getOpcode() in ['ldm' + c for c in arm_conditions.keys() + ['']]:
+            regread = [args[0]]
+            regwrite = parseComSepList(args[1][1:-1])
         #store
         elif instr.getOpcode() in ['str' + c for c in arm_conditions.keys() + ['']]:
             regread = [args[0]]
             if args[1].startswith('['):
                 offsetl = parseComSepList(args[1][1:-1])
                 regread += [r for r in offsetl if isRegister(r)]
+        elif instr.getOpcode() in ['stm' + c for c in arm_conditions.keys() + ['']]:
+            regread = [args[0]] + parseComSepList(args[1][1:-1])
         #push
         elif instr.getOpcode() in ['push' + c for c in arm_conditions.keys() + ['']]:
             regwrite = ['sp']
