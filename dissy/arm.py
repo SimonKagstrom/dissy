@@ -48,11 +48,15 @@ PC := Rm""",
     'cmp': 'Compare two values and set condition flags',
     'eor': 'Bitwise Exclusive OR',
     'eors': 'Bitwise Exclusive OR and set condition flags',
-    'ldr': 'Load (from memory to register)',
+    'ldm': 'Load Multiple',
+    'ldr': 'Load Register',
+    'ldrb': 'Load Register Byte',
+    'ldrh': 'Load Register Halfword',
+    'ldrsh': 'Load Register Halfword and set condition flags',
     'lsl': 'Logical Shift Left',
     'lsls': 'Logical Shift Left and set condition flags',
     'lsr': 'Logical Shift Right',
-    'lsr': 'Logical Shift Right and set condition flags',
+    'lsrs': 'Logical Shift Right and set condition flags',
     'mla': 'Multiply and Accumulate',
     'mls': 'Multiply and Subtract',
     'mov': 'Move',
@@ -60,15 +64,20 @@ PC := Rm""",
     'muls': 'Multiply and set condition flags',
     'mvn': 'Move and negate (XOR 0xFFFFFFFF)',
     'orr': 'Bitwise OR',
-    'orrs': 'Bitwise OR and set conditional flags',
+    'orrs': 'Bitwise OR and set condition flags',
     'pop': """Pop from the stack.
 Canonical form of "ldm SP!, <reglist>\"""",
     'push': """Push on the stack.
 Canonical form of "stmdb SP!, <reglist>\"""",
     'rsb': 'Reverse Subtract',
+    'rsbs': 'Reverse Subtract and set condition flags',
     'smull': """Signed Multiply Long
 %(arg1)s,%(arg2)s := signed(%(arg3)s * %(arg4)s)""",
-    'str': 'Store (from register to memory)',
+    'stm': 'Store Multiple',
+    'str': 'Store Register',
+    'strb': 'Store Register Byte',
+    'strh': 'Store Register Halfword',
+    'strsh': 'Store Register Halfword and set condition flags',
     'sub': 'Subtract'
     }
 
@@ -214,7 +223,7 @@ class ArmArchitecture(architecture.Architecture):
             regwrite = ['pc']
             regread = isRegister(args[0]) and [args[0]] or []
         #load
-        elif instr.getOpcode() in crossproduct(['ldr', 'ldrb', 'ldrh'], arm_conditions.keys() + ['']):
+        elif instr.getOpcode() in crossproduct(['ldr', 'ldrb', 'ldrh', 'ldrsh'], arm_conditions.keys() + ['']):
             regwrite = [args[0]]
             if args[1].startswith('['):
                 offsetl = parseComSepList(args[1][1:-1])
@@ -223,7 +232,7 @@ class ArmArchitecture(architecture.Architecture):
             regread = [args[0]]
             regwrite = parseComSepList(args[1][1:-1])
         #store
-        elif instr.getOpcode() in crossproduct(['str', 'strb', 'strh'], arm_conditions.keys() + ['']):
+        elif instr.getOpcode() in crossproduct(['str', 'strb', 'strh', 'strsh'], arm_conditions.keys() + ['']):
             regread = [args[0]]
             if args[1].startswith('['):
                 offsetl = parseComSepList(args[1][1:-1])
