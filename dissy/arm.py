@@ -106,6 +106,13 @@ Change to Thumb mode if Rm[0] is 1, change to ARM mode if Rm[0] is 0""",
             arm_conditionflag_users += [i + c]
     arm_lists_inited = True
 
+def crossproduct(s1, s2):
+    ans = []
+    for a in s1:
+        for b in s2:
+            ans += [a + b]
+    return ans
+
 class ArmArchitecture(architecture.Architecture):
     def __init__(self):
         architecture.Architecture.__init__(self, arm_jumps, arm_calls,
@@ -187,52 +194,51 @@ class ArmArchitecture(architecture.Architecture):
             regwrite = [args[0]]
             regread = [a for a in args[1:] if isRegister(a)]
         #branches
-        elif instr.getOpcode() in ['b' + c for c in arm_conditions.keys() + ['']]:
+        elif instr.getOpcode() in crossproduct(['b'], arm_conditions.keys() + ['']):
             regwrite = ['pc']
-        elif instr.getOpcode() in ['bl' + c for c in arm_conditions.keys() + ['']]:
+        elif instr.getOpcode() in crossproduct(['bl'], arm_conditions.keys() + ['']):
             regwrite = ['pc', 'lr']
-        elif instr.getOpcode() in ['bx' + c for c in arm_conditions.keys() + ['']]:
+        elif instr.getOpcode() in crossproduct(['bx'], arm_conditions.keys() + ['']):
             regwrite = ['pc']
             regread = [args[0]]
-        elif instr.getOpcode() in ['blx' + c for c in arm_conditions.keys() + ['']]:
+        elif instr.getOpcode() in crossproduct(['blx'], arm_conditions.keys() + ['']):
             regwrite = ['pc']
             regread = isRegister(args[0]) and [args[0]] or []
         #load
-        elif instr.getOpcode() in ['ldr' + c for c in arm_conditions.keys() + ['']]:
+        elif instr.getOpcode() in crossproduct(['ldr', 'ldrb'], arm_conditions.keys() + ['']):
             regwrite = [args[0]]
             if args[1].startswith('['):
                 offsetl = parseComSepList(args[1][1:-1])
                 regread = [r for r in offsetl if isRegister(r)]
-        elif instr.getOpcode() in ['ldm' + c for c in arm_conditions.keys() + ['']]:
+        elif instr.getOpcode() in crossproduct(['ldm'], arm_conditions.keys() + ['']):
             regread = [args[0]]
             regwrite = parseComSepList(args[1][1:-1])
         #store
-        elif instr.getOpcode() in ['str' + c for c in arm_conditions.keys() + ['']]:
+        elif instr.getOpcode() in crossproduct(['str', 'strb'], arm_conditions.keys() + ['']):
             regread = [args[0]]
             if args[1].startswith('['):
                 offsetl = parseComSepList(args[1][1:-1])
                 regread += [r for r in offsetl if isRegister(r)]
-        elif instr.getOpcode() in ['stm' + c for c in arm_conditions.keys() + ['']]:
+        elif instr.getOpcode() in crossproduct(['stm'], arm_conditions.keys() + ['']):
             regread = [args[0]] + parseComSepList(args[1][1:-1])
         #push
-        elif instr.getOpcode() in ['push' + c for c in arm_conditions.keys() + ['']]:
+        elif instr.getOpcode() in crossproduct(['push'], arm_conditions.keys() + ['']):
             regwrite = ['sp']
             regread = ['sp']
             reglist = parseComSepList(args[0][1:-1])
             regread += reglist
-        elif instr.getOpcode() in ['pop' + c for c in arm_conditions.keys() + ['']]:
+        elif instr.getOpcode() in crossproduct(['pop'], arm_conditions.keys() + ['']):
             regwrite = ['sp']
             regread = ['sp']
             reglist = parseComSepList(args[0][1:-1])
             regwrite += reglist
-        elif instr.getOpcode() in ['smull' + c for c in arm_conditions.keys() + ['']]:
+        elif instr.getOpcode() in crossproduct(['smull'], arm_conditions.keys() + ['']):
             regwrite = [args[0], args[1]]
             regread = [args[2], args[3]]
-        elif instr.getOpcode() in ['mla' + c for c in arm_conditions.keys() + ['']]:
+        elif instr.getOpcode() in crossproduct(['mla'], arm_conditions.keys() + ['']):
             regwrite = [args[0]]
             regread = args[1:]
-        elif instr.getOpcode() in ['mul' + c for c in arm_conditions.keys() + ['']] + \
-        ['muls' + c for c in arm_conditions.keys() + ['']]:
+        elif instr.getOpcode() in crossproduct(['mul', 'muls'], arm_conditions.keys() + ['']):
             regwrite = [args[0]]
             regread = [args[1], args[2]]
         elif instr.getOpcode() == '.word':

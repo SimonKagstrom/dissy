@@ -36,7 +36,7 @@ class TestArmArch(unittest.TestCase):
         self.assertEqual(self.arch.parseArguments(instr('cmp', 'r0, #1')),
             (['r0'], [], [1]))
 
-        #Add og sub
+        #add, sub
         self.assertEqual(self.arch.parseArguments(instr('sub', 'sp, sp, #4')),
             (['sp'], ['sp'], [4]))
         self.assertEqual(self.arch.parseArguments(instr('add', 'sp, sp, #4')),
@@ -66,20 +66,25 @@ class TestArmArch(unittest.TestCase):
         self.assertEqual(self.arch.parseArguments(instr('ble', '4c')),
             ([], ['pc'], []))
 
-        #Dynamisk load
+        #dynamic load
         self.assertEqual(self.arch.parseArguments(instr('ldr', 'r3, [ip]')),
             (['ip'], ['r3'], []))
         self.assertEqual(self.arch.parseArguments(instr('ldr', 'r3, [pc, #8]')),
             (['pc'], ['r3'], []))
         self.assertEqual(self.arch.parseArguments(instr('ldr', 'r3, [r2, r0]')),
             (['r2', 'r0'], ['r3'], []))
+        self.assertEqual(self.arch.parseArguments(instr('ldrb', 'r3, [lr, #1]')),
+            (['lr'], ['r3'], []))
         self.assertEqual(self.arch.parseArguments(instr('ldm', 'r0, {r0, r1}')),
             (['r0'], ['r0', 'r1'], []))
-        #Dynamisk store
+
+        #dynamic store
         self.assertEqual(self.arch.parseArguments(instr('str', 'r0, [r3]')),
             (['r0', 'r3'], [], []))
         self.assertEqual(self.arch.parseArguments(instr('str', 'r0, [r4, r5]')),
             (['r0', 'r4', 'r5'], [], []))
+        self.assertEqual(self.arch.parseArguments(instr('strb', 'r0, [r4, #3]')),
+            (['r0', 'r4'], [], []))
         self.assertEqual(self.arch.parseArguments(instr('stm', 'sp, {r2, r3}')),
             (['sp', 'r2', 'r3'], [], []))
 
@@ -96,7 +101,7 @@ class TestArmArch(unittest.TestCase):
         self.assertEqual(self.arch.parseArguments(instr('mla', 'r1, r2, r3, r1')),
             (['r2', 'r3', 'r1'], ['r1'], []))
 
-        #Push, pop
+        #push, pop
         self.assertEqual(self.arch.parseArguments(instr('push', '{lr}')),
             (['sp', 'lr'], ['sp'], []))
         self.assertEqual(self.arch.parseArguments(instr('push', '{r4, r5, lr}')),
@@ -106,7 +111,7 @@ class TestArmArch(unittest.TestCase):
         self.assertEqual(self.arch.parseArguments(instr('pop', '{lr}')),
             (['sp'], ['sp', 'lr'], []))
 
-        #Assorted
+        #misc
         self.assertEqual(self.arch.parseArguments(instr('and', 'r3, r3, #31')),
             (['r3'], ['r3'], [31]))
         self.assertEqual(self.arch.parseArguments(instr('muls', 'r3, r4, r3')),
