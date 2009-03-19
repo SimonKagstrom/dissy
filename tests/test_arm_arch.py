@@ -37,6 +37,8 @@ class TestArmArch(unittest.TestCase):
             (['r0'], [], [1]))
         self.assertEqual(self.arch.parseArguments(instr('cmn', 'r0, #1')),
             (['r0'], [], [1]))
+        self.assertEqual(self.arch.parseArguments(instr('tst', 'r0, #32768')),
+            (['r0'], [], [32768]))
 
         #add, sub
         self.assertEqual(self.arch.parseArguments(instr('sub', 'sp, sp, #4')),

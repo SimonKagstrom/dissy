@@ -25,10 +25,10 @@ arm_jumps = ['b',
              'bne'
              ]
 arm_calls = ['bl']
-arm_conditionflag_setters = ['cmp', 'cmn'] + \
+arm_conditionflag_setters = ['cmp', 'cmn', 'tst'] + \
     [i + "s" for i in
-    ['mul', 'mla', 'umull', 'umlal', 'smull',
-    'smlal', 'mov', 'mvn', 'asr', 'lsl', 'lsr', 'ror', 'rrx'] #TODO more
+    ['asr', 'lsl', 'lsr', 'mla', 'mov', 'mul', 'mvn', 'ror', 'rrx', 'smlal',
+     'smull', 'umlal', 'umull']
     ]
 arm_conditionflag_users = ['']
 
@@ -37,6 +37,7 @@ arm_instr_descriptions = {
     'add': 'Add',
     'and': 'Logical and',
     'asr': 'Arithmetic Shift Right',
+    'asrs': 'Arithmetic Shift Right and set condition flags',
     'bal': 'Unconditional Branch',
     'bic': 'Bit Clear',
     'blal': 'Unconditional Branch and Link',
@@ -78,7 +79,8 @@ Canonical form of "stmdb SP!, <reglist>\"""",
     'strb': 'Store Register Byte',
     'strh': 'Store Register Halfword',
     'strsh': 'Store Register Halfword and set condition flags',
-    'sub': 'Subtract'
+    'sub': 'Subtract',
+    'tst': 'Test'
     }
 
 arm_conditions = {
@@ -204,7 +206,7 @@ class ArmArchitecture(architecture.Architecture):
         args = parseComSepList(instr.args)
         values = [int(a[1:]) for a in args if isValue(a)]
 
-        if instr.getOpcode()[:3] in ['cmp', 'cmn']:
+        if instr.getOpcode()[:3] in ['cmp', 'cmn', 'tst']:
             regread = [a for a in args if isRegister(a)]
         elif instr.getOpcode()[:3] in ['add', 'and', 'asr', 'eor', 'lsl',
                                        'lsr', 'mov', 'mvn', 'orr', 'rsb',
