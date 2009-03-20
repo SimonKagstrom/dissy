@@ -38,10 +38,13 @@ class Instruction(AddressableEntity):
         if self.args != None:
             return self.args
         return ""
+
     def getOutLinkAddress(self):
         return self.outLinkAddress
+
     def getOutLink(self):
         return self.outLink
+
     def getInLinks(self):
         return self.inLink
 
@@ -51,6 +54,7 @@ class Instruction(AddressableEntity):
     def addLinkIn(self, insn):
         pass # Implement this if needed
         #self.linksIn.append(insn)
+
     def addLinkOut(self, obj):
         self.outLinkAddress = obj
 
