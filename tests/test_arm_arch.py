@@ -74,11 +74,11 @@ class TestArmArch(unittest.TestCase):
         self.assertEqual(self.arch.parseArguments(instr('ldr', 'r3, [ip]')),
             (['ip'], ['r3'], []))
         self.assertEqual(self.arch.parseArguments(instr('ldr', 'r3, [pc, #8]')),
-            (['pc'], ['r3'], []))
+            (['pc'], ['r3'], [8]))
         self.assertEqual(self.arch.parseArguments(instr('ldr', 'r3, [r2, r0]')),
             (['r2', 'r0'], ['r3'], []))
         self.assertEqual(self.arch.parseArguments(instr('ldrb', 'r3, [lr, #1]')),
-            (['lr'], ['r3'], []))
+            (['lr'], ['r3'], [1]))
         self.assertEqual(self.arch.parseArguments(instr('ldm', 'r0, {r0, r1}')),
             (['r0'], ['r0', 'r1'], []))
         self.assertEqual(self.arch.parseArguments(instr('ldrh', 'r3, [r1, r4]')),

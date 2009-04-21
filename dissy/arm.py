@@ -13,17 +13,7 @@
 import sys, architecture
 from dissy.architecture import Architecture
 
-arm_jumps = ['b',
-             'bcc',
-             'bcs',
-             'beq',
-             'bgt',
-             'bl',
-             'ble',
-             'bleq',
-             'blt',
-             'bne'
-             ]
+
 arm_calls = ['bl']
 arm_conditionflag_setters = ['cmp', 'cmn', 'tst'] + \
     [i + "s" for i in
@@ -131,6 +121,9 @@ def crossproduct(s1, s2):
             ans += [a + b]
     return ans
 
+
+arm_jumps = crossproduct(['b', 'bl'], arm_conditions.keys() + [''])
+
 class ArmArchitecture(architecture.Architecture):
     def __init__(self):
         architecture.Architecture.__init__(self, arm_jumps, arm_calls,
@@ -230,6 +223,7 @@ class ArmArchitecture(architecture.Architecture):
             if args[1].startswith('['):
                 offsetl = parseComSepList(args[1][1:-1])
                 regread = [r for r in offsetl if isRegister(r)]
+                values = [int(r[1:]) for r in offsetl if r[0] == '#']
         elif instr.getOpcode() in crossproduct(['ldm'], arm_conditions.keys() + ['']):
             regread = [args[0]]
             regwrite = parseComSepList(args[1][1:-1])
