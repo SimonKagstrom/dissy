@@ -132,6 +132,8 @@ class TestArmArch(unittest.TestCase):
             (['r2', 'r0'], ['r2'], []))
         self.assertEqual(self.arch.parseArguments(instr('orrs', 'r2, r2, r0')),
             (['r2', 'r0'], ['r2'], []))
+        self.assertEqual(self.arch.parseArguments(instr('teq', 'ip, r0')),
+            (['ip', 'r0'], [], []))
 
 if __name__ == '__main__':
     unittest.main()

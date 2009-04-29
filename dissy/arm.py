@@ -146,7 +146,8 @@ class ArmArchitecture(architecture.Architecture):
     def parseArguments(self, instr):
         """Parses an argument string, into a two-tuple, containing:
             * A list of the registers read in this instruction
-            * A list of the registers written to in this instruction"""
+            * A list of the registers written to in this instruction
+            * A list of the values used in this instruction"""
 
         def parseComSepList(lstr):
             ret = []
@@ -199,7 +200,7 @@ class ArmArchitecture(architecture.Architecture):
         args = parseComSepList(instr.args)
         values = [int(a[1:]) for a in args if isValue(a)]
 
-        if instr.getOpcode()[:3] in ['cmp', 'cmn', 'tst']:
+        if instr.getOpcode()[:3] in ['cmp', 'cmn', 'tst', 'teq']:
             regread = [a for a in args if isRegister(a)]
         elif instr.getOpcode()[:3] in ['add', 'and', 'asr', 'eor', 'lsl',
                                        'lsr', 'mov', 'mvn', 'orr', 'rsb',
