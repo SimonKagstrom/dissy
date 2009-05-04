@@ -119,6 +119,12 @@ class TestArmArch(unittest.TestCase):
         self.assertEqual(self.arch.parseArguments(instr('pop', '{lr}')),
             (['sp'], ['sp', 'lr'], []))
 
+        #load, store multiple
+        self.assertEqual(self.arch.parseArguments(instr('stmdb', 'r6, {r0, lr}')),
+            (['r6', 'r0', 'lr'], ['r6'], []))
+        self.assertEqual(self.arch.parseArguments(instr('ldmib', 'sp, {r2, r3}')),
+            (['sp'], ['sp', 'r2', 'r3'], []))
+
         #misc
         self.assertEqual(self.arch.parseArguments(instr('and', 'r3, r3, #31')),
             (['r3'], ['r3'], [31]))

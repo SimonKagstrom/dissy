@@ -242,10 +242,23 @@ class ArmArchitecture(architecture.Architecture):
             regread = ['sp']
             reglist = parseComSepList(args[0][1:-1])
             regread += reglist
+        #pop
         elif instr.getOpcode() in crossproduct(['pop'], arm_conditions.keys() + ['']):
             regwrite = ['sp']
             regread = ['sp']
             reglist = parseComSepList(args[0][1:-1])
+            regwrite += reglist
+        #store multiple
+        elif instr.getOpcode() in crossproduct(['stmia', 'stmib', 'stmda', 'stmdb'], arm_conditions.keys() + ['']):
+            regwrite = [args[0]]
+            regread = [args[0]]
+            reglist = parseComSepList(args[1][1:-1])
+            regread += reglist
+        #load multiple
+        elif instr.getOpcode() in crossproduct(['ldmia', 'ldmib', 'ldmda', 'ldmdb'], arm_conditions.keys() + ['']):
+            regwrite = [args[0]]
+            regread = [args[0]]
+            reglist = parseComSepList(args[1][1:-1])
             regwrite += reglist
         elif instr.getOpcode() in crossproduct(['smull'], arm_conditions.keys() + ['']):
             regwrite = [args[0], args[1]]
