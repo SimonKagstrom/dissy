@@ -33,6 +33,12 @@ class FileDialogue:
         filter.add_mime_type("application/x-object")
         filter.add_mime_type("application/x-executable")
         file_open_dialog.add_filter(filter)
+
+        filter = gtk.FileFilter()
+        filter.set_name("Dissy exported files (*.dissy)")
+        filter.add_pattern("*.dissy")
+        file_open_dialog.add_filter(filter)
+
         filter = gtk.FileFilter()
         filter.set_name("All files")
         filter.add_pattern("*")

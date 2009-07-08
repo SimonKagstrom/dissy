@@ -20,7 +20,7 @@ pygtk.require('2.0')
 import gtk, gobject
 
 from dissy.Config import *
-from dissy.File import File
+from dissy.File import File, ExportedFile
 from dissy.File import linuxKernelCrashRegexp
 from dissy.Entity import Entity
 from dissy.StrEntity import StrEntity
@@ -66,11 +66,8 @@ class GUI_Controller:
 
     def __init__(self, inFile=None):
         if inFile == None:
-            self.fileContainer = File(baseAddress=baseAddress)
             inFile = ""
-        else:
-            self.fileContainer = File(inFile, baseAddress=baseAddress)
-
+        self.fileContainer = File(baseAddress=baseAddress)
         self.searchwordHighlighter = InstructionModelHighlighter.SearchwordHighlighter()
         self.conditionFlagHighlighter = InstructionModelHighlighter.ConditionFlagHighlighter()
         self.highlighters = [
@@ -116,6 +113,8 @@ class GUI_Controller:
                                        'Open a file', lambda w: FileDialogue(self)),
                                       ('Reload', None, '_Reload', '<Control>r',
                                        'Reload a file', lambda w: self.loadFile() ),
+                                      ('Export', None, '_Export', None,
+                                       'Export the current workspace', lambda w: self.saveExportedFile() ),
                                       ('File', None, '_File'),
                                       ('Options', None, '_Options'),
                                       ('Navigation', None, '_Navigation'),
@@ -214,6 +213,9 @@ class GUI_Controller:
         # Make the info box visible or not depending on the configuration
         self.setInformationBox()
 
+        if inFile:
+            self.loadFile(inFile)
+
     def loadFile(self, filename=None):
         if filename == None:
             if not self.fileContainer:
@@ -221,8 +223,38 @@ class GUI_Controller:
             filename = self.fileContainer.filename
 
         self.root.set_title("%s - %s" % (PROGRAM_NAME, filename))
-        self.fileContainer = File(filename, baseAddress=baseAddress)
+        if filename.endswith('.dissy'):
+            self.fileContainer = ExportedFile(filename, baseAddress=baseAddress)
+        else:
+            self.fileContainer = File(filename, baseAddress=baseAddress)
         self.functionView.set_model( FunctionModel.InfoModel(self.fileContainer).getModel() )
+
+    def saveExportedFile(self):
+        file_save_dialog = gtk.FileChooserDialog(title="Export file",
+            action=gtk.FILE_CHOOSER_ACTION_SAVE,
+                buttons=(gtk.STOCK_CANCEL,
+                        gtk.RESPONSE_CANCEL,
+                        gtk.STOCK_SAVE,
+                        gtk.RESPONSE_OK))
+        filter = gtk.FileFilter()
+        filter.set_name("Dissy exported files (*.dissy)")
+        filter.add_pattern("*.dissy")
+        file_save_dialog.add_filter(filter)
+
+        if file_save_dialog.run() == gtk.RESPONSE_OK:
+            filename = file_save_dialog.get_filename()
+            file_save_dialog.destroy()
+        else:
+            file_save_dialog.destroy()
+            return
+
+        if not filename.endswith('.dissy'):
+            filename += '.dissy'
+        
+        f = open(filename, 'wb')
+        expfile = self.fileContainer.toExportedFile()
+        expfile.saveTo(f)
+        f.close()
 
     def loadTimeoutCallback(self, o):
         self.fileContainer, done = o.parse(10)

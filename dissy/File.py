@@ -10,7 +10,8 @@
 ## for full text of the license.
 ##
 ######################################################################
-import cgi, os, sys
+import cgi, os, sys, re
+import cPickle as pickle
 
 sys.path.append(".")
 import dissy, dissy.architecture
@@ -55,32 +56,13 @@ def getObjType(s):
     return TYPE_DATA
 
 
-class File(AddressableEntity):
-    def __init__(self, filename=None, baseAddress = 0):
+class BaseFile(AddressableEntity):
+    def __init__(self, baseAddress = 0):
         AddressableEntity.__init__(self, baseAddress = baseAddress)
         self.symbols = []
         self.functions = []
         self.data = []
-        self.filename = filename
         self.arch = "intel"
-        if filename != None:
-            self.arch = dissy.architecture.getArchitecture(self.getArchStr())
-            if self.hasSymbols():
-                self.parse()
-            else:
-                self.parseNoSymbols()
-
-    def getArchStr(self):
-        "Get the architecture of the file"
-        arch = "intel" # Assume Intel architecture
-        f = os.popen("%s -h --wide %s" % (config.readelf, self.filename))
-        for line in f:
-            words = line.split()
-            if len(words) >= 2 and words[0] == "Machine:":
-                arch = words[1].lower()
-                break
-        f.close()
-        return arch
 
     def lookup_int(self, address):
         for sym in self.symbols:
@@ -88,6 +70,14 @@ class File(AddressableEntity):
             if address >= extents[0] and address < extents[1]:
                 return sym
         return None
+
+    def link(self):
+        for fn in self.functions:
+            unresolved = fn.link()
+            for insn in unresolved:
+                other = self.lookup(insn.getAddress())
+                if other:
+                    insn.linkTo(other)
 
     def lookup_str(self, label):
         for sym in self.symbols:
@@ -107,21 +97,9 @@ class File(AddressableEntity):
     def hasSymbols(self):
         return True
 
-    def link(self):
-        for fn in self.functions:
-            unresolved = fn.link()
-            for insn in unresolved:
-                other = self.lookup(insn.getAddress())
-                if other:
-                    insn.linkTo(other)
-
     def parse(self):
-        "Parse the functions from this file (with symbols)"
-
-        f = os.popen("%s --numeric-sort --demangle --print-size %s" % (config.nm, self.filename))
-        lines = f.readlines()
-        f.close()
-
+        """Parses the output of 'nm', to get the list of symbols"""
+        lines = self.getNmLines()
         for line in lines:
             r = symbolRegexp.match(line)
             if r == None:
@@ -161,14 +139,12 @@ class File(AddressableEntity):
 #            else:
 #                sym = typeToClass[objType](self, address, label, size)
 #                self.data.append(sym)
-
-
+        
     def parseNoSymbols(self):
-        "Parse the functions from this file (without symbols)"
-
+        """Parses the output of objdump, and create the functions"""
+        lines = self.getObjdumpLines()
         callDests = []
-        f = os.popen("%s --disassemble --demangle %s" % (config.objdump, self.filename))
-        for line in f:
+        for line in lines:
             r = insnRegExp.match(line)
             if r != None:
                 if self.arch.isCall(r.group(3)):
@@ -188,7 +164,6 @@ class File(AddressableEntity):
             fn.stream = None
             self.functions.append(fn)
             count = count + 1
-        f.close()
 
     def getFunctions(self):
         return self.functions
@@ -196,12 +171,137 @@ class File(AddressableEntity):
     def getData(self):
         return self.functions
 
+class File(BaseFile):
+    def __init__(self, filename=None, baseAddress = 0):
+        BaseFile.__init__(self, baseAddress = baseAddress)
+        self.filename = filename
+
+        if filename != None:
+            self.arch = dissy.architecture.getArchitecture(self.getArchStr())
+            if self.hasSymbols():
+                self.parse()
+            else:
+                self.parseNoSymbols()
+
+    def getArchStr(self):
+        "Get the architecture of the file"
+        arch = "intel" # Assume Intel architecture
+        f = os.popen("%s -h --wide %s" % (config.readelf, self.filename))
+        for line in f:
+            words = line.split()
+            if len(words) >= 2 and words[0] == "Machine:":
+                arch = words[1].lower()
+                break
+        f.close()
+        return arch
+
+    def getNmLines(self):
+        f = os.popen("%s --numeric-sort --demangle --print-size %s" % (config.nm, self.filename))
+        lines = f.readlines()
+        f.close()
+        return lines
+
+    def getObjdumpLines(self):
+        "Parse the functions from this file (without symbols)"
+        f = os.popen("%s --disassemble --demangle %s" % (config.objdump, self.filename))
+        for line in f:
+            yield line
+        f.close()
+
+    def getFunctionObjdump(self, funclabel, start, end):
+        s = "%s --wide --demangle --source --start-address=0x%Lx --stop-address=0x%Lx %s" % (config.objdump, start, end, self.filename)
+        f = os.popen(s)
+        for line in f:
+            yield line
+        f.close()
+
+    def getObjdumpSourceLines(self):
+        s = "%s --wide --demangle --source %s" % (config.objdump, self.filename)
+        f = os.popen(s)
+        for line in f:
+            yield line
+        f.close()
+
     def __str__(self):
         out = "%s: " % (self.filename)
         for fn in self.functions:
             out = out + str(fn)
         return out
 
+    def toExportedFile(self):
+        expfile = ExportedFile()
+        expfile.archStr = self.getArchStr()
+        expfile.objdumpLines = list(self.getObjdumpLines())
+        expfile.objdumpSourceLines = list(self.getObjdumpSourceLines())
+        expfile.nmLines = list(self.getNmLines())
+        return expfile
+
+class ExportedFile(BaseFile):
+    def __init__(self, filename=None, baseAddress = 0):
+        BaseFile.__init__(self, baseAddress = baseAddress)
+        self.filename = filename
+
+        self.archStr = "intel"
+        self.objdumpLines = []
+        self.nmLines = []
+        self.objdumpSourceLines = []
+
+        if filename != None:
+            f = open(filename, 'rb')
+            self.archStr = pickle.load(f)
+            self.nmLines = pickle.load(f)
+            self.objdumpLines = pickle.load(f)
+            self.objdumpSourceLines = pickle.load(f)
+            f.close()
+
+            self.arch = dissy.architecture.getArchitecture(self.getArchStr())
+            if self.hasSymbols():
+                self.parse()
+            else:
+                self.parseNoSymbols()
+
+    def getArchStr(self):
+        return self.archStr
+
+    def getNmLines(self):
+        return self.nmLines
+
+    def getObjdumpLines(self):
+        return self.objdumpLines
+
+    def getFunctionObjdump(self, funclabel, start, end):
+        infunc = False
+        startlinere = re.compile("^[0]*%Lx <%s>:" % (start, funclabel))
+        endlinere = re.compile("^[0]*%Lx <.*>:" % (end))
+        lastline = None
+        for line in self.objdumpSourceLines:
+            if not infunc:
+                r = startlinere.match(line)
+                if r != None:
+                    infunc = True
+                    lastline = line
+            elif infunc:
+                r = endlinere.match(line)
+                if r != None:
+                    return
+                else:
+                    yield lastline
+                    lastline = line
+        #this means we reached the end of the dump, also yield the last line
+        if lastline:
+            yield lastline
+
+    def saveTo(self, f):
+        pickle.dump(self.archStr, f, -1)
+        pickle.dump(self.nmLines, f, -1)
+        pickle.dump(self.objdumpLines, f, -1)
+        pickle.dump(self.objdumpSourceLines, f, -1)
+
+    def __str__(self):
+        out = "%s: " % (self.filename)
+        for fn in self.functions:
+            out = out + str(fn)
+        return out
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:

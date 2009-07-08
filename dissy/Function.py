@@ -62,14 +62,13 @@ class Function(AddressableEntity):
                 start = long(start) | 0xffffffff00000000
             if end & (1<<31):
                 end = long(end) | 0xffffffff00000000
-        s = "%s --wide --demangle --source --start-address=0x%Lx --stop-address=0x%Lx %s" % (config.objdump, start, end, self.file.filename)
-        self.stream = os.popen(s)
-        if self.stream == None:
-            self.prepareParseFunction()
+
+        lines = self.file.getFunctionObjdump(self.label, start, end)
+
         self.instructions = []
         self.all = []
         firstNonEmpty=False
-        for line in self.stream:
+        for line in lines:
             # Weed away some unneeded stuff
             if line.startswith("Disassembly of section ") or line.startswith("%s: " % (self.file.filename)):
                 continue
@@ -84,7 +83,6 @@ class Function(AddressableEntity):
                 count = count + 1
             else:
                 self.addOther(cgi.escape(line))
-        self.stream.close()
 
         if count == 0 and try64bitWorkaround == False:
             # If we couldn't add anything interesting, try the 64-bit

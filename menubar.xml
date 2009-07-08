@@ -3,6 +3,7 @@
       <menu action="File">
         <menuitem action="Open"/>
         <menuitem action="Reload"/>
+        <menuitem action="Export"/>
         <menuitem action="Quit"/>
       </menu>
       <menu action="Navigation">
