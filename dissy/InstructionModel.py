@@ -123,6 +123,8 @@ class InfoModel:
                 insnStr = insn.getOpcode()
                 argsStr = insn.getArgs()
                 strRepresentation = '<span foreground="%s">%s</span>\t%s' % (config.insnFgColor, insnStr, argsStr)
+                if insn.comment:
+                    strRepresentation += ' <span foreground="%s">;%s</span>' % (config.highLevelCodeFgColor, insn.comment)
                 iter[COLUMN_STR_REPRESENTATION] = strRepresentation
                 iter[COLUMN_ADDR] = insnAddr
                 for highlighter in self.highlighters:

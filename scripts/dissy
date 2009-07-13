@@ -547,11 +547,15 @@ class DisplayModel:
         link_renderer.set_property("width", 22)
         link_renderer.set_property("height", 22)
         insnRenderer.set_property("height", 22)
+        insnRenderer.set_property("editable", True)
+        insnRenderer.connect("edited", self.insnCommentEdited, self.insnView)
+        insnRenderer.connect("editing-started", self.insnCommentEditStart, self.insnView)
         callDstRenderer.set_property("font", "Monospace")
 
         self.insnView.connect( 'row-activated', self.insnRowActivated, model )
         self.insnView.connect( 'move-cursor', self.insnMoveCursor, None )
         self.insnView.connect( 'cursor-changed', self.insnCursorChanged )
+        self.insnView.connect( 'key-press-event', self.insnKeyPress )
         self.insnView.set_search_column(0)
         self.insnView.set_search_equal_func(self.insnSearchCallback, model)
 
@@ -575,6 +579,24 @@ class DisplayModel:
         for col in self.insnColumns.values():
             self.insnView.append_column( col )
         return self.insnView
+
+    def insnKeyPress(self, view, event):
+        if event.string == ';':
+            view.set_cursor(view.get_cursor()[0], focus_column=self.insnColumns[4], start_editing=True)
+            return True
+
+    def insnCommentEditStart(self, insnRenderer, editable, path, insnView):
+        model = insnView.get_model()
+        iter = model.get_iter_from_string(path)
+        insn = model[iter][InstructionModel.COLUMN_INSTRUCTION]
+        editable.set_text(insn.comment)
+
+    def insnCommentEdited(self, insnRenderer, path, new_text, insnView):
+        model = insnView.get_model()
+        iter = model.get_iter_from_string(path)
+        insn = model[iter][InstructionModel.COLUMN_INSTRUCTION]
+        insn.comment = new_text
+        insnView.set_cursor(path)
 
     def insnCursorChanged(self, view):
         model = view.get_model()

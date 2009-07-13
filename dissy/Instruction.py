@@ -21,6 +21,7 @@ class Instruction(AddressableEntity):
         self.args = args
         self.outLinkAddress = None
         self.outLink = None
+        self.comment = ''
         arch = self.function.getFile().getArch()
 
         if arch.isJump(insn):
