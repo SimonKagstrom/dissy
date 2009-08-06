@@ -57,9 +57,9 @@ PC := Rm""",
     'orr': 'Bitwise OR',
     'orrs': 'Bitwise OR and set condition flags',
     'pop': """Pop from the stack.
-Canonical form of "ldm SP!, <reglist>\"""",
+Canonical form of "ldm SP!, &lt;reglist&gt;\"""",
     'push': """Push on the stack.
-Canonical form of "stmdb SP!, <reglist>\"""",
+Canonical form of "stmdb SP!, &lt;reglist&gt;\"""",
     'rsb': 'Reverse Subtract',
     'rsbs': 'Reverse Subtract and set condition flags',
     'smull': """Signed Multiply Long

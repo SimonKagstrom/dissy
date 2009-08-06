@@ -11,6 +11,7 @@
 ##
 ######################################################################
 import gtk, gobject
+import cgi
 
 from Config import *
 from Function import Function
@@ -61,7 +62,7 @@ class InfoModel:
         self.function = function
         self.curInstruction = curInstruction
         self.highlighters = highlighters
-        self.tree_store = gtk.TreeStore( gobject.TYPE_STRING,
+        self.tree_store = gtk.ListStore( gobject.TYPE_STRING,
                                          gtk.gdk.Pixbuf,
                                          gtk.gdk.Pixbuf,
                                          gtk.gdk.Pixbuf,
@@ -80,7 +81,7 @@ class InfoModel:
         for insn in self.function.getAll():
             if isinstance(insn, StrEntity):
                 if config.showHighLevelCode:
-                    insn.iter = self.tree_store.append( None, ("",
+                    insn.iter = self.tree_store.append( ("",
                                                                jump_pixmaps_left[insn.left_state[2]],
                                                                jump_pixmaps_left[insn.left_state[1]],
                                                                jump_pixmaps_left[insn.left_state[0]],
@@ -102,7 +103,7 @@ class InfoModel:
             argsStr = insn.getArgs()
 
             strRepresentation = '<span foreground="%s">%s</span>\t%s' % (config.insnFgColor, insnStr, argsStr)
-            insn.iter = self.tree_store.append( None, (insnAddr,
+            insn.iter = self.tree_store.append( (insnAddr,
                                                        jump_pixmaps_left[insn.left_state[2]],
                                                        jump_pixmaps_left[insn.left_state[1]],
                                                        jump_pixmaps_left[insn.left_state[0]],
@@ -124,7 +125,7 @@ class InfoModel:
                 argsStr = insn.getArgs()
                 strRepresentation = '<span foreground="%s">%s</span>\t%s' % (config.insnFgColor, insnStr, argsStr)
                 if insn.comment:
-                    strRepresentation += ' <span foreground="%s">;%s</span>' % (config.highLevelCodeFgColor, insn.comment)
+                    strRepresentation += ' <span foreground="%s">;%s</span>' % (config.highLevelCodeFgColor, cgi.escape(insn.comment))
                 iter[COLUMN_STR_REPRESENTATION] = strRepresentation
                 iter[COLUMN_ADDR] = insnAddr
                 for highlighter in self.highlighters:
