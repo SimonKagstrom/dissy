@@ -27,7 +27,6 @@ from dissy.StrEntity import StrEntity
 from dissy.Instruction import Instruction
 from dissy.Function import Function
 from dissy.PreferencesDialogue import PreferencesDialogue
-from dissy.FileDialogue import FileDialogue
 from dissy.history import History
 from dissy import FunctionModel
 from dissy import InstructionModel
@@ -60,7 +59,6 @@ def loadFile(fileName):
     except:
         return None
 
-# Taken from the cellrenderer.py example
 class GUI_Controller:
     """ The GUI class is the controller for Dissy """
 
@@ -68,6 +66,56 @@ class GUI_Controller:
         if inFile == None:
             inFile = ""
         self.fileContainer = File(baseAddress=baseAddress)
+
+        icon = None
+        icon_name = lookupFile('gfx/icon.svg')
+        if icon_name != None:
+            icon = gtk.gdk.pixbuf_new_from_file(icon_name)
+            icon = icon.scale_simple(64, 64, gtk.gdk.INTERP_BILINEAR)
+        
+        #GUI setup from gtk.Builder
+        builder = gtk.Builder()
+        builder.add_from_file("dissy.ui") 
+        self.root = builder.get_object('mainWindow')
+        self.root.set_title("%s - %s" % (PROGRAM_NAME, inFile))
+        self.root.set_icon(icon)
+        builder.connect_signals(self)
+        self.root.show_all()
+
+        #create illusion that infobox is a textview
+        eventboxInfoBox = builder.get_object('eventboxInfoBox')
+        eventboxInfoBox.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("white"))
+
+        self.infoBox = builder.get_object('infoBoxLabel')
+        self.vboxInfoBox = builder.get_object('vboxInfoBox')
+
+        lookupCombo = builder.get_object('lookupCombo')
+        liststore = gtk.ListStore(gobject.TYPE_STRING)
+        lookupCombo.set_model(liststore)
+        lookupCombo.set_text_column(0)
+        lookupCombo.child.connect("activate", self.pasteBinEntryActivated, lookupCombo)
+        lookupCombo.connect("changed", self.pasteBinChanged, lookupCombo)
+
+        highlightEntry = builder.get_object('highlightEntry')
+        highlightEntry.connect("activate", self.patternMatchBinCallback, highlightEntry)
+
+        self.vpaned = builder.get_object('vpaned')
+        self.vpaned.set_position(650/3)
+        self.hpaned_down = builder.get_object('hpaned')
+        self.hpaned_down.set_position(900/3*2)
+
+        #Set shortcuts, that doesn't work from Gtk.Builder
+        accelgroupMainWin = builder.get_object('accelgroupMainWin')
+        builder.get_object('mnuShowSource').add_accelerator('activate', accelgroupMainWin, ord('u'),
+            gtk.gdk.CONTROL_MASK, gtk.ACCEL_VISIBLE)
+        builder.get_object('navBack').add_accelerator('activate', accelgroupMainWin, 
+            gtk.gdk.keyval_from_name('Left'),
+            gtk.gdk.MOD1_MASK, gtk.ACCEL_VISIBLE)
+        builder.get_object('navForward').add_accelerator('activate', accelgroupMainWin, 
+            gtk.gdk.keyval_from_name('Right'),
+            gtk.gdk.MOD1_MASK, gtk.ACCEL_VISIBLE)
+
+        # Get the model and attach it to the view
         self.searchwordHighlighter = InstructionModelHighlighter.SearchwordHighlighter()
         self.conditionFlagHighlighter = InstructionModelHighlighter.ConditionFlagHighlighter()
         self.highlighters = [
@@ -75,147 +123,82 @@ class GUI_Controller:
             self.conditionFlagHighlighter,
         ]
 
-        functionModel = FunctionModel.InfoModel(self.fileContainer).getModel()
-        self.instructionModel = InstructionModel.InfoModel(None, highlighters=self.highlighters)
-        insnModel = self.instructionModel.getModel()
-
-        self.display = DisplayModel(self)
-
-        icon = None
-        icon_name = lookupFile('gfx/icon.svg')
-        if icon_name != None:
-            icon = gtk.gdk.pixbuf_new_from_file(icon_name)
-            icon = icon.scale_simple(64, 64, gtk.gdk.INTERP_BILINEAR)
-
-        # setup the main window
-        self.root = gtk.Window(type=gtk.WINDOW_TOPLEVEL)
-        self.root.set_title("%s - %s" % (PROGRAM_NAME, inFile))
-        self.root.set_icon(icon)
-        self.root.connect("destroy", self.destroy_cb)
-        self.root.set_default_size(900, 600)
-
-        # Boxes for the widgets
-        vbox = gtk.VBox()
-        hbox = gtk.HBox()
-
-        # menubar
-        self.uimgr = gtk.UIManager()
-        self.accelgroup = self.uimgr.get_accel_group()
-        self.root.add_accel_group(self.accelgroup)
-
-        # Create an ActionGroup
-        self.actiongroup = gtk.ActionGroup('UIManagerExample')
-
-        # Create actions
-        self.actiongroup.add_actions([('Quit', gtk.STOCK_QUIT, '_Quit', None,
-                                       'Quit the Program', self.destroy_cb),
-                                      ('Open', gtk.STOCK_OPEN, '_Open', None,
-                                       'Open a file', lambda w: FileDialogue(self)),
-                                      ('Reload', None, '_Reload', '<Control>r',
-                                       'Reload a file', lambda w: self.loadFile() ),
-                                      ('Export', None, '_Export', None,
-                                       'Export the current workspace', lambda w: self.saveExportedFile() ),
-                                      ('File', None, '_File'),
-                                      ('Options', None, '_Options'),
-                                      ('Navigation', None, '_Navigation'),
-                                      ('Forward', gtk.STOCK_GO_FORWARD, '_Forward', '<Alt>Right',
-                                       'Navigate forwards in history', lambda w: self.forward()),
-                                      ('Back', gtk.STOCK_GO_BACK, '_Back', '<Alt>Left',
-                                       'Navigate backwards in history', lambda w: self.back()),
-                                      ('Preferences', gtk.STOCK_PREFERENCES, '_Preferences', None,
-                                       'Configure preferences for %s' % (PROGRAM_NAME), self.preferencesDialogue),
-                                      ('Toggle source', None, '_Toggle source', None,
-                                       'Toggle the showing of high-level source', self.toggleHighLevelCode),
-                                      ('Toggle information box', None, 'Toggle _information box', None,
-                                       'Toggle the showing of the instruction information box', self.toggleInformationBox),
-                                      ('Help', None, '_Help'),
-                                      ('About', gtk.STOCK_ABOUT, '_About', None,
-                                       'About %s' % PROGRAM_NAME, self.about),
-                                      ])
-        # Add the actiongroup to the uimanager
-        self.uimgr.insert_action_group(self.actiongroup, 0)
-
-        self.uimgr.add_ui_from_string(loadFile("menubar.xml"))
-
-        # Pastebin for quick lookup of symbols
-        pasteBin = gtk.combo_box_entry_new_text()
-
-        # Pattern matcher
-        patternMatchBin = gtk.Entry()
-
-        # Move to the pasteBin with Ctrl-l
-        pasteBin.child.add_accelerator("grab-focus", self.accelgroup,
-                                       ord('L'), gtk.gdk.CONTROL_MASK, gtk.ACCEL_VISIBLE)
-        # Move to the pattern match bin with Ctrl-k
-        patternMatchBin.add_accelerator("grab-focus", self.accelgroup,
-                                        ord('K'), gtk.gdk.CONTROL_MASK, gtk.ACCEL_VISIBLE)
-
-        pasteBin.child.connect("activate", self.pasteBinEntryActivated, pasteBin)
-        pasteBin.connect("changed", self.pasteBinChanged, pasteBin)
-
-        patternMatchBin.connect("activate", self.patternMatchBinCallback, patternMatchBin)
-
-        tooltips = gtk.Tooltips()
-        tooltips.set_tip(pasteBin.child, "Lookup an address or symbol (shortcut Ctrl-l)")
-        tooltips.set_tip(patternMatchBin, "Enter a pattern to highlight (shortcut Ctrl-k)")
-
-        hbox.pack_start(gtk.Label("Lookup"), expand=False, padding=2)
-        hbox.pack_start(pasteBin)
-        hbox.pack_start(gtk.Label("Highlight"), expand=False, padding=2)
-        hbox.pack_start(patternMatchBin, expand=False, padding=2)
-
-        vbox.pack_start(self.uimgr.get_widget("/MenuBar"), expand=False)
-        vbox.pack_start(hbox, expand=False, padding=2)
-
-        sw_up = gtk.ScrolledWindow()
-        sw_up.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
-        self.sw_down = gtk.ScrolledWindow()
-        self.sw_down.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
-
-        self.vpaned = gtk.VPaned()
-        self.vpaned.set_position(650/3)
-        vbox.pack_start(self.vpaned)
-
-        # Get the model and attach it to the view
-        self.functionView, self.instructionView = self.display.makeViews( functionModel, insnModel )
-
-        # Add instruction info section
-        self.hpaned_down = gtk.HPaned()
-        self.hpaned_down.set_position(900/3*2)
-        self.vbox_instr_info = gtk.VBox()
-
-        self.instr_info_label = gtk.Label("<b>Instruction Information</b>")
-        self.instr_info_label.set_use_markup(True)
-        self.vbox_instr_info.pack_start(self.instr_info_label, expand=False)
-        self.instr_info_description = gtk.TextView()
-        self.instr_info_description.set_editable(False)
-
-        self.instr_info_description.set_wrap_mode(gtk.WRAP_WORD)
-        self.vbox_instr_info.pack_start(self.instr_info_description)
-
-        self.sw_down.add(self.instructionView)
-        self.hpaned_down.pack1(self.sw_down, resize=True)
-        self.hpaned_down.pack2(self.vbox_instr_info, resize=False)
-
-        # Add our view into the scrolled window
-        sw_up.add(self.functionView)
-        self.vpaned.add1(sw_up)
-        self.vpaned.add2(self.hpaned_down)
-
-        self.root.add(vbox)
-
         # Setup focus chains (no tab-to-focus in the information box)
-        vbox.set_focus_chain([ self.vpaned ])
-        self.hpaned_down.set_focus_chain([ self.sw_down ])
+        builder.get_object('vboxMain').set_focus_chain([ self.vpaned ])
+        self.hpaned_down.set_focus_chain([ builder.get_object('scrwInstruction') ])
 
-        self.root.show_all()
+        self.instructionView = builder.get_object('instructionView')
+        self.instructionController = InstructionViewController(self, self.instructionView)
 
-        # Make the info box visible or not depending on the configuration
-        self.setInformationBox()
+        self.functionView = builder.get_object('functionView')
+        self.functionController = FunctionViewController(self, self.functionView, 
+            self.instructionController)
 
+        #Load settings
+        self.loading = True
+        builder.get_object('actionShowInformationBox').set_active(config.showInstructionInformationBox)
+        builder.get_object('actionShowSource').set_active(config.showHighLevelCode)
+        self.setInformationBoxVisible()
+        self.loading = False
         if inFile:
             self.loadFile(inFile)
 
+    def on_navBack_activate(self, widget):
+        try:
+            val = history.back()
+        except:
+            return
+        return self.lookupFunction(val)
+
+    def on_navForward_activate(self, widget):
+        try:
+            val = history.forward()
+        except:
+            return
+        return self.lookupFunction(val)
+
+    def on_quit(self, widget=None):
+        gtk.main_quit()
+        return
+
+    def on_mnuSave_activate(self, widget):
+        #TODO - refactor file handling
+        pass
+
+    def on_mnuOpen_activate(self, widget):
+        file_open_dialog = gtk.FileChooserDialog(title="Open object file",
+            action=gtk.FILE_CHOOSER_ACTION_OPEN,
+                buttons=(gtk.STOCK_CANCEL,
+                        gtk.RESPONSE_CANCEL,
+                        gtk.STOCK_OPEN,
+                        gtk.RESPONSE_OK))
+        filter = gtk.FileFilter()
+        filter.set_name("Object files")
+        filter.add_pattern("*.o")
+        filter.add_mime_type("application/x-object")
+        filter.add_mime_type("application/x-executable")
+        file_open_dialog.add_filter(filter)
+
+        filter = gtk.FileFilter()
+        filter.set_name("Dissy exported files (*.dissy)")
+        filter.add_pattern("*.dissy")
+        file_open_dialog.add_filter(filter)
+
+        filter = gtk.FileFilter()
+        filter.set_name("All files")
+        filter.add_pattern("*")
+        file_open_dialog.add_filter(filter)
+
+        if file_open_dialog.run() == gtk.RESPONSE_OK:
+            filename = file_open_dialog.get_filename()
+            self.loadFile(filename)
+            file_open_dialog.destroy()
+        else:
+            file_open_dialog.destroy()
+
+    def on_mnuReload_activate(self, widget):
+        self.loadFile()
+    
     def loadFile(self, filename=None):
         if filename == None:
             if not self.fileContainer:
@@ -229,7 +212,7 @@ class GUI_Controller:
             self.fileContainer = File(filename, baseAddress=baseAddress)
         self.functionView.set_model( FunctionModel.InfoModel(self.fileContainer).getModel() )
 
-    def saveExportedFile(self):
+    def on_mnuSaveAs_activate(self, widget):
         file_save_dialog = gtk.FileChooserDialog(title="Export file",
             action=gtk.FILE_CHOOSER_ACTION_SAVE,
                 buttons=(gtk.STOCK_CANCEL,
@@ -256,12 +239,7 @@ class GUI_Controller:
         expfile.saveTo(f)
         f.close()
 
-    def loadTimeoutCallback(self, o):
-        self.fileContainer, done = o.parse(10)
-        self.functionView.set_model( FunctionModel.InfoModel( self.fileContainer ).getModel() )
-        return done
-
-    def about(self, w=None):
+    def on_mnuAbout_activate(self, w=None):
         "Display the about dialogue"
         about = gtk.AboutDialog()
         about.set_name(PROGRAM_NAME)
@@ -291,7 +269,9 @@ class GUI_Controller:
         except: # If nothing is selected this will fail
             pass
 
-    def toggleHighLevelCode(self, widget):
+    def on_actionShowSource_toggled(self, action):
+        if self.loading:
+            return
         config.showHighLevelCode = not config.showHighLevelCode
         config.save()
         try:
@@ -300,27 +280,37 @@ class GUI_Controller:
         except TypeError:
             # There is no function currently being shown
             return
+        model = self.instructionView.get_model()
+        curpath = self.instructionView.get_cursor()[0]
+        try:
+            curaddr = model[curpath][InstructionModel.COLUMN_INSTRUCTION].getAddress()
+        except:
+            curaddr = None
         self.instructionView.set_model( InstructionModel.InfoModel(curFunction).getModel() )
-        self.redisplayFunction()
+        if curaddr:
+            self.lookupFunction(curaddr)
 
-    def setInformationBox(self):
-        if config.showInstructionInformationBox:
-            self.vbox_instr_info.show()
-        else:
-            self.vbox_instr_info.hide()
-
-    def toggleInformationBox(self, widget):
+    def on_actionShowInformationBox_toggled(self, widget):
+        if self.loading:
+            return
         config.showInstructionInformationBox = not config.showInstructionInformationBox
         config.save()
-        self.setInformationBox()
+        self.setInformationBoxVisible()
 
-    def preferencesDialogue(self, widget):
+    def setInformationBoxVisible(self):
+        if config.showInstructionInformationBox:
+            self.vboxInfoBox.show()
+        else:
+            self.vboxInfoBox.hide()
+
+    def on_mnuPreferences_activate(self, widget):
         pd = PreferencesDialogue(self)
 
     def patternMatchBinCallback(self, entry, comboBox):
         markPattern = entry.get_text()
         self.searchwordHighlighter.setSearchPattern(markPattern)
         self.redisplayFunction()
+        self.instructionView.grab_focus()
 
     def lookupFunction(self, val):
         function = self.fileContainer.lookup(val)
@@ -329,7 +319,7 @@ class GUI_Controller:
         if function != None:
             model = self.functionView.get_model()
             self.functionView.set_cursor_on_cell(model.get_path(function.iter))
-            self.functionView.row_activated(model.get_path(function.iter), self.display.viewColumns[0])
+            self.functionView.row_activated(model.get_path(function.iter), self.functionController.viewColumns[0])
 
             # Return if this was just a label lookup
             if isinstance(val, str):
@@ -338,9 +328,8 @@ class GUI_Controller:
             insn = function.lookup(val)
 
             if insn != None:
-                model = self.display.insnView.get_model()
-                self.display.insnView.set_cursor_on_cell(model.get_path(insn.iter))
-                self.display.insnView.row_activated(model.get_path(insn.iter), self.display.insnColumns[0])
+                model = self.instructionView.get_model()
+                self.instructionView.set_cursor_on_cell(model.get_path(insn.iter))
             history.enable()
             return True
 
@@ -388,7 +377,6 @@ there, promote it to the top of the list"""
         if self.lookupFunction(val):
             history.add(val)
 
-
     def pasteBinEntryActivated(self, entry, comboBox):
         """
         Called to lookup a symbol / address. Looks up a label or an
@@ -414,7 +402,7 @@ there, promote it to the top of the list"""
                 self.lookupWord(word)
 
     def clearInstructionInfo(self):
-        self.instr_info_description.get_buffer().set_text('Not available')
+        self.infoBox.set_markup('<b>Not available</b>')
 
     def updateInstructionInfo(self, instruction):
         # Check if this architecture supports instruction info
@@ -423,68 +411,10 @@ there, promote it to the top of the list"""
             return
         instrInfo = self.fileContainer.getArch().getInstructionInfo(instruction)
 
-        self.instr_info_description.get_buffer().set_text(
-            instrInfo.get('shortinfo', '') + "\n\n" +
+        self.infoBox.set_markup(
+            '<b>' + instrInfo.get('shortinfo', '') + "</b>\n\n" +
             instrInfo.get('description', '')
             )
-
-    def forward(self, filename=None):
-        try:
-            val = history.forward()
-        except:
-            return
-        return self.lookupFunction(val)
-
-    def back(self, filename=None):
-        try:
-            val = history.back()
-        except:
-            return
-        return self.lookupFunction(val)
-
-    def destroy_cb(self, *kw):
-        """ Destroy callback to shutdown the app """
-        gtk.main_quit()
-        return
-
-    def run(self):
-        """ run is called to set off the GTK mainloop """
-        gtk.main()
-        return
-
-
-class DisplayModel:
-    """ Displays the Info_Model model in a view """
-
-    def __init__(self, controller):
-        self.controller = controller
-
-    def makeFunctionView( self, model ):
-        """ Form a view for the Tree Model """
-        self.functionView = gtk.TreeView( model )
-
-        # setup the cell renderers
-        self.functionRenderer = gtk.CellRendererText()
-        self.functionRenderer.set_property("font", "Monospace")
-
-        self.functionView.connect( 'row-activated', self.functionRowActivated, model )
-        self.functionView.set_search_column(0)
-        self.functionView.set_search_equal_func(self.functionSearchCallback, model)
-
-        self.viewColumns = {}
-        # Connect column0 of the display with column 0 in our list model
-        # The renderer will then display whatever is in column 0 of
-        # our model .
-        self.viewColumns[0] = gtk.TreeViewColumn("Address", self.functionRenderer, markup=0)
-        self.viewColumns[1] = gtk.TreeViewColumn("Size", self.functionRenderer, markup=1)
-        self.viewColumns[2] = gtk.TreeViewColumn("Label", self.functionRenderer, markup=2)
-
-        # The columns active state is attached to the second column
-        # in the model.  So when the model says True then the button
-        # will show as active e.g on.
-        for col in self.viewColumns.values():
-            self.functionView.append_column( col )
-        return self.functionView
 
     def searchCommon(self, entity, key):
         key = key.lower()
@@ -501,23 +431,54 @@ class DisplayModel:
             return False
         return True
 
-    def functionSearchCallback(self, model, column, key, iter, unused):
+    def run(self):
+        """ run is called to set off the GTK mainloop """
+        gtk.main()
+        return
+
+class FunctionViewController:
+    """ Controls the Function TreeView """
+
+    def __init__(self, controller, treeview, instructionController):
+        self.controller = controller
+        self.functionView = treeview
+        self.instructionController = instructionController
+
+        self.setupFunctionView()
+
+    def setupFunctionView(self):
+        """ Sets up the columns to be displayed """
+
+        # setup the cell renderers
+        self.functionRenderer = gtk.CellRendererText()
+        self.functionRenderer.set_property("font", "Monospace")
+
+        self.functionView.connect( 'row-activated', self.functionRowActivated)
+        self.functionView.set_search_column(0)
+        self.functionView.set_search_equal_func(self.functionSearchCallback)
+
+        self.viewColumns = {}
+        # Connect column0 of the display with column 0 in our list model
+        # The renderer will then display whatever is in column 0 of
+        # our model .
+        self.viewColumns[0] = gtk.TreeViewColumn("Address", self.functionRenderer, markup=0)
+        self.viewColumns[1] = gtk.TreeViewColumn("Size", self.functionRenderer, markup=1)
+        self.viewColumns[2] = gtk.TreeViewColumn("Label", self.functionRenderer, markup=2)
+
+        # The columns active state is attached to the second column
+        # in the model.  So when the model says True then the button
+        # will show as active e.g on.
+        for col in self.viewColumns.values():
+            self.functionView.append_column( col )
+
+    def functionSearchCallback(self, model, column, key, iter):
         """
         Callback for interactive searches.
         """
         entity = model[iter][3]
-        return self.searchCommon(entity, key)
+        return self.controller.searchCommon(entity, key)
 
-    def insnSearchCallback(self, model, column, key, iter, unused):
-        """
-        Callback for interactive searches.
-        """
-        entity = model[iter][InstructionModel.COLUMN_INSTRUCTION]
-        if isinstance(entity, StrEntity):
-            return True
-        return self.searchCommon(entity, key)
-
-    def functionRowActivated( self, view, iter, path, model ):
+    def functionRowActivated( self, view, iter, path):
         """
         Run when one row is selected (double-click/space)
         """
@@ -525,15 +486,19 @@ class DisplayModel:
         entity = model[iter][3]
         entity.link()
         history.add(entity.address)
-        self.controller.instructionModel = InstructionModel.InfoModel(entity,
-            highlighters=self.controller.highlighters)
-        model = self.controller.instructionModel.getModel()
-        self.insnView.set_model( model )
-        self.insnView.connect( 'row-activated', self.insnRowActivated, model )
 
-    def makeInstructionView(self, model):
-        self.insnView = gtk.TreeView( model )
+        self.instructionController.setInstructionModel(entity)
 
+class InstructionViewController:
+    """ Controls the Instruction TreeView """
+
+    def __init__(self, controller, treeview):
+        self.controller = controller
+        self.insnView = treeview
+
+        self.setupInstructionView()
+
+    def setupInstructionView(self):
         # setup the cell renderers
         link_renderer = gtk.CellRendererPixbuf()
 
@@ -552,12 +517,12 @@ class DisplayModel:
         insnRenderer.connect("editing-started", self.insnCommentEditStart, self.insnView)
         callDstRenderer.set_property("font", "Monospace")
 
-        self.insnView.connect( 'row-activated', self.insnRowActivated, model )
-        self.insnView.connect( 'move-cursor', self.insnMoveCursor, None )
+        self.insnView.connect( 'row-activated', self.insnRowActivated)
+        self.insnView.connect_after( 'move-cursor', self.insnMoveCursor)
         self.insnView.connect( 'cursor-changed', self.insnCursorChanged )
         self.insnView.connect( 'key-press-event', self.insnKeyPress )
         self.insnView.set_search_column(0)
-        self.insnView.set_search_equal_func(self.insnSearchCallback, model)
+        self.insnView.set_search_equal_func(self.insnSearchCallback)
 
         self.insnColumns = {}
         # Connect column0 of the display with column 0 in our list model
@@ -578,7 +543,27 @@ class DisplayModel:
         # will show as active e.g on.
         for col in self.insnColumns.values():
             self.insnView.append_column( col )
-        return self.insnView
+
+    def setInstructionModel(self, functionEntity):
+        """
+        Change the instruction model.
+        """
+        self.controller.instructionModel = InstructionModel.InfoModel(functionEntity,
+            highlighters=self.controller.highlighters)
+        model = self.controller.instructionModel.getModel()
+        self.insnView.set_model( model )
+
+        self.insnView.grab_focus()
+        self.insnView.set_cursor(0)
+
+    def insnSearchCallback(self, model, column, key, iter):
+        """
+        Callback for interactive searches.
+        """
+        entity = model[iter][InstructionModel.COLUMN_INSTRUCTION]
+        if isinstance(entity, StrEntity):
+            return True
+        return self.controller.searchCommon(entity, key)
 
     def insnKeyPress(self, view, event):
         if event.string == ';':
@@ -608,36 +593,34 @@ class DisplayModel:
         else:
             self.controller.clearInstructionInfo()
 
-    def insnMoveCursor(self, view, step, count, user):
+    def insnMoveCursor(self, view, step, count):
         model = view.get_model()
-        try:
-            cur = model[view.get_cursor()[0]][InstructionModel.COLUMN_INSTRUCTION]
-        except:
-            # There is no model, just ignore
-            return
-        function = cur.getFunction()
+        if not model:
+            return True
+        curpath = view.get_cursor()[0][0]
+        origpath = view.get_cursor()[0][0]
 
         if step == gtk.MOVEMENT_DISPLAY_LINES:
-            all = function.getAll()
-            nextIdx = all.index(cur)
+            #Find next Instruction
             try:
-                while not isinstance(all[nextIdx + count], Instruction):
-                    nextIdx = nextIdx + count
+                while not isinstance(model[curpath][InstructionModel.COLUMN_INSTRUCTION], 
+                    Instruction):
+                    curpath = curpath + count
             except IndexError:
-                return True
-            if nextIdx < 0:
-                return True
-            view.set_cursor(model.get_path(all[nextIdx].iter))
-
+                #Reverse move
+                curpath = origpath - count
+            if curpath < 0:
+                #Reverse move
+                curpath = origpath - count
+            view.set_cursor(curpath)
         return True
 
-
-    def insnRowActivated( self, view, iter, path, unused ):
+    def insnRowActivated( self, view, iter, path):
         """
         Run when one row is selected (double-click/space)
         """
         model = view.get_model()
-        functionModel = self.functionView.get_model()
+        functionModel = self.controller.functionView.get_model()
         try:
             entity = model[iter][InstructionModel.COLUMN_INSTRUCTION]
         except IndexError:
@@ -645,11 +628,12 @@ class DisplayModel:
             return
         if isinstance(entity, Instruction) and entity.hasLink():
             link = entity.getOutLink()
+            history.add(entity.getAddress())
             if isinstance(link, Function):
                 history.add(link.getAddress())
                 dst = link
-                self.functionView.set_cursor_on_cell(functionModel.get_path(dst.iter))
-                self.functionView.row_activated(functionModel.get_path(dst.iter), self.viewColumns[0])
+                self.controller.functionView.set_cursor_on_cell(functionModel.get_path(dst.iter))
+                self.controller.functionView.row_activated(functionModel.get_path(dst.iter), self.controller.functionController.viewColumns[0])
                 view.set_cursor_on_cell(0)
             else:
                 func = entity.getFunction()
@@ -657,14 +641,6 @@ class DisplayModel:
                 if dst != None:
                     history.add(dst.getAddress())
                     view.set_cursor(model.get_path(dst.iter))
-
-
-
-    def makeViews( self, functionModel, insnModel ):
-
-        functionView, instructionView = self.makeFunctionView( functionModel), self.makeInstructionView( insnModel )
-
-        return functionView, instructionView
 
 def usage():
     print "Usage: %s -h [FILE]" % (PROGRAM_NAME.lower())

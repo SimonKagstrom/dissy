@@ -4,6 +4,14 @@ Dissy (10)
 	asrs, teq, load multiple, store multiple
 	(Mads Chr. Olesen)
 
+	* Ability to comment instructions (Mads Chr. Olesen)
+
+	* Export of "workspace", s.t. another user can view the disassembled
+	object using only Dissy (no need for a compatible objdump, etc.)
+	(Mads Chr. Olesen)
+
+	* Re-factor GUI to use Gtk.Builder (Mads Chr. Olesen)
+
 	* Usability improvement: When an entry is selected in the combo box
 	for the location bar, look it up directly
 
