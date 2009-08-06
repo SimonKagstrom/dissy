@@ -31,10 +31,14 @@ class Function(AddressableEntity):
         self.label = label
         self.all = []
         self.insns = []
+        self.index_by_insn = {}
         self.file = fileContainer
 
     def addInstruction(self, insn):
+        """Add an instruction to this function"""
+        idx = len(self.insns)
         self.insns.append(insn)
+        self.index_by_insn[insn] = idx
         self.all.append(insn)
         if insn.getAddress() > self.endAddress:
             self.setSize(insn.getAddress() - self.address)
@@ -44,6 +48,18 @@ class Function(AddressableEntity):
 
     def addOther(self, other):
         self.all.append(StrEntity(self, other))
+
+    def __getInstructionByOffset(self, insn, dir):
+        idx = self.index_by_insn[insn]
+        return self.insns[ idx + dir ]
+
+    def getPrevInstruction(self, insn):
+        """Return the previous instruction from @a insn"""
+        return self.__getInstructionByOffset(insn, -1)
+
+    def getNextInstruction(self, insn):
+        """Return the next instruction from @a insn"""
+        return self.__getInstructionByOffset(insn, 1)
 
     def lookup(self, address):
         last = self.insns[0]

@@ -58,11 +58,13 @@ def getObjType(s):
 
 class BaseFile(AddressableEntity):
     def __init__(self, baseAddress = 0):
+        global global_file
         AddressableEntity.__init__(self, baseAddress = baseAddress)
         self.symbols = []
         self.functions = []
         self.data = []
         self.arch = "intel"
+        global_file = self
 
     def lookup_int(self, address):
         for sym in self.symbols:
@@ -309,3 +311,15 @@ if __name__ == "__main__":
         sys.exit(1)
     f = File(sys.argv[1])
     f.parse()
+
+
+# Module-global file object
+global_file = None
+
+def getArchStr(): return global_file.getArchStr()
+
+def lookup(param): return global_file.lookup(param)
+
+def getFunctions(): return global_file.getFunctions()
+
+def getData(): return global_file.getData()
