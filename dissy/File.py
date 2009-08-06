@@ -116,13 +116,13 @@ class BaseFile(AddressableEntity):
             label = cgi.escape(r.group(4))
 
             if size == 0:
-                idx = lines.index(line)
+                idx = lines.index(line) + 1
                 if idx < len(lines)-1:
-                    # The size is next line.adr - this line.adr
-                    s = symbolRegexp.match(lines[idx+1])
-                    if s == None or s and s.group(1) == None:
-                        # Nope, doesn't work...
-                        continue
+                    # The size is the next real symbol's line.adr - this line.adr
+                    s = symbolRegexp.match(lines[idx])
+                    while idx < len(lines)-1 and s == None or (s and s.group(1) == None):
+                        idx = idx + 1
+                        s = symbolRegexp.match(lines[idx])
 
                     nextAdr = long("0x" + s.group(1), 16)
                     size = nextAdr - address
@@ -205,20 +205,20 @@ class File(BaseFile):
 
     def getObjdumpLines(self):
         "Parse the functions from this file (without symbols)"
-        f = os.popen("%s --disassemble --demangle %s" % (config.objdump, self.filename))
+        f = os.popen("%s --disassemble --demangle --disassemble-zeroes %s" % (config.objdump, self.filename))
         for line in f:
             yield line
         f.close()
 
     def getFunctionObjdump(self, funclabel, start, end):
-        s = "%s --wide --demangle --source --start-address=0x%Lx --stop-address=0x%Lx %s" % (config.objdump, start, end, self.filename)
+        s = "%s --wide --demangle --disassemble-zeroes --source --start-address=0x%Lx --stop-address=0x%Lx %s" % (config.objdump, start, end, self.filename)
         f = os.popen(s)
         for line in f:
             yield line
         f.close()
 
     def getObjdumpSourceLines(self):
-        s = "%s --wide --demangle --source %s" % (config.objdump, self.filename)
+        s = "%s --wide --demangle --disassemble-zeroes --source %s" % (config.objdump, self.filename)
         f = os.popen(s)
         for line in f:
             yield line
