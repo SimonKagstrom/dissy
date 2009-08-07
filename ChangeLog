@@ -12,6 +12,8 @@ Dissy (10)
 
 	* Re-factor GUI to use Gtk.Builder (Mads Chr. Olesen)
 
+	* Optimize loading (Mads Chr. Olesen)
+
 	* Usability improvement: When an entry is selected in the combo box
 	for the location bar, look it up directly
 

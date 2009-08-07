@@ -50,15 +50,6 @@ def lookupFile(name):
             pass
     return None
 
-def loadFile(fileName):
-    try:
-        f = open(lookupFile(fileName))
-        out = f.read()
-        f.close()
-        return out
-    except:
-        return None
-
 class GUI_Controller:
     """ The GUI class is the controller for Dissy """
 
