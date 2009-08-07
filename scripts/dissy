@@ -63,10 +63,10 @@ class GUI_Controller:
         if icon_name != None:
             icon = gtk.gdk.pixbuf_new_from_file(icon_name)
             icon = icon.scale_simple(64, 64, gtk.gdk.INTERP_BILINEAR)
-        
+
         #GUI setup from gtk.Builder
         builder = gtk.Builder()
-        builder.add_from_file("dissy.ui") 
+        builder.add_from_file("dissy.ui")
         self.root = builder.get_object('mainWindow')
         self.root.set_title("%s - %s" % (PROGRAM_NAME, inFile))
         self.root.set_icon(icon)
@@ -99,10 +99,10 @@ class GUI_Controller:
         accelgroupMainWin = builder.get_object('accelgroupMainWin')
         builder.get_object('mnuShowSource').add_accelerator('activate', accelgroupMainWin, ord('u'),
             gtk.gdk.CONTROL_MASK, gtk.ACCEL_VISIBLE)
-        builder.get_object('navBack').add_accelerator('activate', accelgroupMainWin, 
+        builder.get_object('navBack').add_accelerator('activate', accelgroupMainWin,
             gtk.gdk.keyval_from_name('Left'),
             gtk.gdk.MOD1_MASK, gtk.ACCEL_VISIBLE)
-        builder.get_object('navForward').add_accelerator('activate', accelgroupMainWin, 
+        builder.get_object('navForward').add_accelerator('activate', accelgroupMainWin,
             gtk.gdk.keyval_from_name('Right'),
             gtk.gdk.MOD1_MASK, gtk.ACCEL_VISIBLE)
 
@@ -122,7 +122,7 @@ class GUI_Controller:
         self.instructionController = InstructionViewController(self, self.instructionView)
 
         self.functionView = builder.get_object('functionView')
-        self.functionController = FunctionViewController(self, self.functionView, 
+        self.functionController = FunctionViewController(self, self.functionView,
             self.instructionController)
 
         #Load settings
@@ -189,7 +189,7 @@ class GUI_Controller:
 
     def on_mnuReload_activate(self, widget):
         self.loadFile()
-    
+
     def loadFile(self, filename=None):
         if filename == None:
             if not self.fileContainer:
@@ -224,7 +224,7 @@ class GUI_Controller:
 
         if not filename.endswith('.dissy'):
             filename += '.dissy'
-        
+
         f = open(filename, 'wb')
         expfile = self.fileContainer.toExportedFile()
         expfile.saveTo(f)
@@ -594,7 +594,7 @@ class InstructionViewController:
         if step == gtk.MOVEMENT_DISPLAY_LINES:
             #Find next Instruction
             try:
-                while not isinstance(model[curpath][InstructionModel.COLUMN_INSTRUCTION], 
+                while not isinstance(model[curpath][InstructionModel.COLUMN_INSTRUCTION],
                     Instruction):
                     curpath = curpath + count
             except IndexError:
