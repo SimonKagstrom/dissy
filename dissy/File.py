@@ -77,7 +77,7 @@ class BaseFile(AddressableEntity):
         for fn in self.functions:
             unresolved = fn.link()
             for insn in unresolved:
-                other = self.lookup(insn.getAddress())
+                other = self.lookup(insn.address)
                 if other:
                     insn.linkTo(other)
 

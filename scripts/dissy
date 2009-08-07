@@ -283,7 +283,7 @@ class GUI_Controller:
         model = self.instructionView.get_model()
         curpath = self.instructionView.get_cursor()[0]
         try:
-            curaddr = model[curpath][InstructionModel.COLUMN_INSTRUCTION].getAddress()
+            curaddr = model[curpath][InstructionModel.COLUMN_INSTRUCTION].address
         except:
             curaddr = None
         self.instructionView.set_model( InstructionModel.InfoModel(curFunction).getModel() )
@@ -363,7 +363,7 @@ there, promote it to the top of the list"""
             function = self.fileContainer.lookup(fn_name)
 
             if function != None:
-                val=function.getAddress() + long(fn_addend, 16)
+                val=function.address + long(fn_addend, 16)
                 if self.lookupFunction( val ):
                     history.add(val)
             return
@@ -418,7 +418,7 @@ there, promote it to the top of the list"""
 
     def searchCommon(self, entity, key):
         key = key.lower()
-        comp1 = ("0x%08x" % entity.getAddress()).lower()
+        comp1 = ("0x%08x" % entity.address).lower()
         comp2 = entity.getLabel().lower()
         if isinstance(entity, Instruction):
             comp3 = entity.getOpcode() + entity.getArgs()
@@ -628,18 +628,18 @@ class InstructionViewController:
             return
         if isinstance(entity, Instruction) and entity.hasLink():
             link = entity.getOutLink()
-            history.add(entity.getAddress())
+            history.add(entity.address)
             if isinstance(link, Function):
-                history.add(link.getAddress())
+                history.add(link.address)
                 dst = link
                 self.controller.functionView.set_cursor_on_cell(functionModel.get_path(dst.iter))
                 self.controller.functionView.row_activated(functionModel.get_path(dst.iter), self.controller.functionController.viewColumns[0])
                 view.set_cursor_on_cell(0)
             else:
                 func = entity.getFunction()
-                dst = func.lookup(link.getAddress())
+                dst = func.lookup(link.address)
                 if dst != None:
-                    history.add(dst.getAddress())
+                    history.add(dst.address)
                     view.set_cursor(model.get_path(dst.iter))
 
 def usage():

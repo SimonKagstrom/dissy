@@ -36,12 +36,11 @@ class Function(AddressableEntity):
 
     def addInstruction(self, insn):
         """Add an instruction to this function"""
-        idx = len(self.insns)
         self.insns.append(insn)
         self.addressToIns[insn.address] = insn
         self.all.append(insn)
-        if insn.getAddress() > self.endAddress:
-            self.setSize(insn.getAddress() - self.address)
+        if insn.address > self.endAddress:
+            self.setSize(insn.address - self.address)
 
     def getFile(self):
         return self.file
@@ -136,12 +135,12 @@ class Function(AddressableEntity):
         for insn in self.insns:
             other = insn.getOutLink()
             if isinstance(other, Instruction) and other != insn:
-                if other.getAddress() < insn.getAddress():
+                if other.address < insn.address:
                     # Jump from insn to other BACKWARDS
-                    negative[insn.getAddress()] = (insn, other)
+                    negative[insn.address] = (insn, other)
                 else:
                     # Jump from insn to other FORWARDS
-                    positive[insn.getAddress()] = (insn, other)
+                    positive[insn.address] = (insn, other)
         return positive, negative
 
     def fillInJumpStreams(self, jumpDict, left):
@@ -154,10 +153,10 @@ class Function(AddressableEntity):
         for insn in self.all:
             if isinstance(insn, Instruction):
                 # Something starts on this address
-                if jumpDict.has_key(insn.getAddress()):
+                if jumpDict.has_key(insn.address):
                     stream = jumpStreamHandler.alloc()
                     if stream != None:
-                        stream.start(jumpDict[insn.getAddress()] )
+                        stream.start(jumpDict[insn.address] )
             jumpStreamHandler.update(insn)
             if left == True:
                 insn.left_state = jumpStreamHandler.getStateTuple()

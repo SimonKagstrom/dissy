@@ -26,7 +26,7 @@ class InfoModel:
         # Create the TreeStore
         for item in fileContainer.getData():
             # Insert functions
-            item.iter = self.tree_store.append(None, ("0x%08x" % item.getAddress(),
+            item.iter = self.tree_store.append(None, ("0x%08x" % item.address,
                                                       item.getSize(),
                                                       item.getLabel(),
                                                       item.getType(),

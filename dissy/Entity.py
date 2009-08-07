@@ -25,9 +25,6 @@ class AddressableEntity(Entity):
         else:
             self.endAddress = endAddress + baseAddress
 
-    def getAddress(self):
-        return self.address
-
     def getLabel(self):
         return self.label
 

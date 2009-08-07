@@ -98,11 +98,13 @@ class InfoModel:
             if isinstance(insn.getOutLink(), Function):
                 target = insn.getOutLink().getLabel()
 
-            insnAddr = "0x%08x" % (insn.getAddress())
+            insnAddr = "0x%08x" % (insn.address)
             insnStr = insn.getOpcode()
             argsStr = insn.getArgs()
 
             strRepresentation = '<span foreground="%s">%s</span>\t%s' % (config.insnFgColor, insnStr, argsStr)
+            if insn.comment:
+                strRepresentation += ' <span foreground="%s">;%s</span>' % (config.highLevelCodeFgColor, cgi.escape(insn.comment))
             insn.iter = self.tree_store.append( (insnAddr,
                                                        jump_pixmaps_left[insn.left_state[2]],
                                                        jump_pixmaps_left[insn.left_state[1]],
@@ -114,13 +116,12 @@ class InfoModel:
                                                        target,
                                                        insn
                                                        ))
-        self.refreshModel()
 
     def refreshModel(self):
         for iter in self.tree_store:
             insn = iter[COLUMN_INSTRUCTION]
             if isinstance(insn, Instruction):
-                insnAddr = "0x%08x" % (insn.getAddress())
+                insnAddr = "0x%08x" % (insn.address)
                 insnStr = insn.getOpcode()
                 argsStr = insn.getArgs()
                 strRepresentation = '<span foreground="%s">%s</span>\t%s' % (config.insnFgColor, insnStr, argsStr)
