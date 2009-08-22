@@ -66,7 +66,11 @@ class GUI_Controller:
 
         #GUI setup from gtk.Builder
         builder = gtk.Builder()
-        builder.add_from_file("dissy.ui")
+        ui_file_name = lookupFile("dissy.ui")
+        if ui_file_name == None:
+            sys.stderr.write("Cannot find the dissy UI definition file (dissy.ui)\n")
+            sys.exit(1)
+        builder.add_from_file(ui_file_name)
         self.root = builder.get_object('mainWindow')
         self.root.set_title("%s - %s" % (PROGRAM_NAME, inFile))
         self.root.set_icon(icon)
