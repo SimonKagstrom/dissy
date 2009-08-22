@@ -16,6 +16,21 @@ PROGRAM_NAME="Dissy"
 PROGRAM_VERSION="10"
 PROGRAM_URL="http://dissy.googlecode.com"
 
+pathsToSearch = ['.', '/usr/local/share/%s' % (PROGRAM_NAME).lower(),
+                     '/usr/share/%s' % (PROGRAM_NAME).lower()]
+
+def lookupFile(name):
+    for path in pathsToSearch:
+        fullPath = "%s/%s" % (path, name)
+
+        try:
+            st = os.lstat(fullPath)
+            return fullPath
+        except:
+            pass
+    return None
+
+
 class Config:
     def __init__(self):
         self.configfile = os.path.expanduser("~/.dissy/config.dump")

@@ -37,19 +37,6 @@ NUM_JUMP_COLUMNS=3
 # Navigation history
 history = History()
 
-def lookupFile(name):
-    pathsToSearch = ['.', '/usr/local/share/%s' % (PROGRAM_NAME).lower(),
-                     '/usr/share/%s' % (PROGRAM_NAME).lower()]
-    for path in pathsToSearch:
-        fullPath = "%s/%s" % (path, name)
-
-        try:
-            st = os.lstat(fullPath)
-            return fullPath
-        except:
-            pass
-    return None
-
 class GUI_Controller:
     """ The GUI class is the controller for Dissy """
 

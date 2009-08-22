@@ -19,8 +19,6 @@ from StrEntity import StrEntity
 from Instruction import Instruction
 
 def loadFile(fileName):
-    pathsToSearch = ['.', '/usr/local/share/%s' % (PROGRAM_NAME).lower(),
-                     '/usr/share/%s' % (PROGRAM_NAME).lower()]
     for path in pathsToSearch:
         fullPath = "%s/%s" % (path, fileName)
         try:
