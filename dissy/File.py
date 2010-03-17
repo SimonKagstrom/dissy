@@ -188,7 +188,7 @@ class File(BaseFile):
     def getArchStr(self):
         "Get the architecture of the file"
         arch = "intel" # Assume Intel architecture
-        f = os.popen("%s -h --wide %s" % (config.readelf, self.filename))
+        f = os.popen("%s -h --wide '%s'" % (config.readelf, self.filename))
         for line in f:
             words = line.split()
             if len(words) >= 2 and words[0] == "Machine:":
@@ -198,27 +198,27 @@ class File(BaseFile):
         return arch
 
     def getNmLines(self):
-        f = os.popen("%s --numeric-sort --demangle --print-size %s" % (config.nm, self.filename))
+        f = os.popen("%s --numeric-sort --demangle --print-size '%s'" % (config.nm, self.filename))
         lines = f.readlines()
         f.close()
         return lines
 
     def getObjdumpLines(self):
         "Parse the functions from this file (without symbols)"
-        f = os.popen("%s --disassemble --demangle --disassemble-zeroes %s" % (config.objdump, self.filename))
+        f = os.popen("%s --disassemble --demangle --disassemble-zeroes '%s'" % (config.objdump, self.filename))
         for line in f:
             yield line
         f.close()
 
     def getFunctionObjdump(self, funclabel, start, end):
-        s = "%s --wide --demangle --disassemble-zeroes --source --start-address=0x%Lx --stop-address=0x%Lx %s" % (config.objdump, start, end, self.filename)
+        s = "%s --wide --demangle --disassemble-zeroes --source --start-address=0x%Lx --stop-address=0x%Lx '%s'" % (config.objdump, start, end, self.filename)
         f = os.popen(s)
         for line in f:
             yield line
         f.close()
 
     def getObjdumpSourceLines(self):
-        s = "%s --wide --demangle --disassemble-zeroes --source %s" % (config.objdump, self.filename)
+        s = "%s --wide --demangle --disassemble-zeroes --source '%s'" % (config.objdump, self.filename)
         f = os.popen(s)
         for line in f:
             yield line
