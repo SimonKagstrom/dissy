@@ -70,10 +70,11 @@ class Config:
         self.nm = other.nm
 
     def getFromEnvironment(self):
-        od = os.getenv("OBJDUMP")
-
-        if od != None:
-            self.objdump = od
+        # allow the "OBJDUMP", "READELF", "NM" environment variables to
+        # override the default executables used
+        self.objdump = os.getenv("OBJDUMP", self.objdump)
+        self.readelf = os.getenv("READELF", self.readelf)
+        self.nm = os.getenv("NM", self.nm)
 
     def getDefault(self, which):
         return self.defaults[which]
