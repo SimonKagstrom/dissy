@@ -13,19 +13,19 @@
 from dissy.Entity import Entity, AddressableEntity
 
 class Instruction(AddressableEntity):
-    def __init__(self, function, address, encoding, insn, args):
+    def __init__(self, function, address, encoding, opcode, args):
         AddressableEntity.__init__(self, address = address, endAddress = address, baseAddress = function.baseAddress)
         self.function = function
         self.encoding = encoding
-        self.insn = insn
+        self.opcode = opcode
         self.args = args
         self.outLinkAddress = None
         self.outLink = None
         self.comment = ''
         arch = self.function.getFile().getArch()
 
-        if arch.isJump(insn):
-            val = arch.getJumpDestination(insn, args)
+        if arch.isJump(opcode):
+            val = arch.getJumpDestination(address, opcode, args)
             if val != None:
                 self.addLinkOut( val + self.baseAddress )
 
@@ -33,7 +33,7 @@ class Instruction(AddressableEntity):
         return self.function
 
     def getOpcode(self):
-        return self.insn
+        return self.opcode
 
     def getArgs(self):
         if self.args != None:
@@ -79,7 +79,7 @@ class Instruction(AddressableEntity):
         return True
 
     def __str__(self):
-        out = ("0x%08x " % self.address) + " " + str(self.insn)
+        out = ("0x%08x " % self.address) + " " + str(self.opcode)
         if self.args != None:
             out += str(" " * (20-len(out))) + str(self.args)
         return out

@@ -120,7 +120,9 @@ class BaseFile(AddressableEntity):
                 if idx < len(lines)-1:
                     # The size is the next real symbol's line.adr - this line.adr
                     s = symbolRegexp.match(lines[idx])
-                    while idx < len(lines)-1 and s == None or (s and s.group(1) == None):
+                    while idx < len(lines)-1 and s == None or (s and s.group(1) == None) or \
+                        (s and s.group(3) in ('t', 'W')):
+                        #ignore symbols with type 't' and 'W', this helps some procs on e.g. ATMEL
                         idx = idx + 1
                         s = symbolRegexp.match(lines[idx])
 
@@ -150,7 +152,7 @@ class BaseFile(AddressableEntity):
             r = insnRegExp.match(line)
             if r != None:
                 if self.arch.isCall(r.group(3)):
-                    dst = self.arch.getJumpDestination(r.group(3), r.group(4))
+                    dst = self.arch.getJumpDestination(r.group(1), r.group(3), r.group(4))
                     if dst != None:
                         callDests.append(dst)
         # Sort the calls
