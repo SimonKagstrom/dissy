@@ -18,6 +18,7 @@ sys.path = ['/home/ska/projects/dissy/trunk/'] + sys.path
 
 pygtk.require('2.0')
 import gtk, gobject
+gtk.gdk.threads_init()
 
 from dissy.Config import *
 from dissy.File import File, ExportedFile
@@ -31,6 +32,17 @@ from dissy.history import History
 from dissy import FunctionModel
 from dissy import InstructionModel
 from dissy import InstructionModelHighlighter
+from dissy.InfoBox import InfoBox
+
+#Value analysis requires the WALi python bindings
+enable_value_analysis = False
+try:
+    import wali
+    print 'Enabling value analysis'
+    enable_value_analysis = True
+    from dissy.ValueAnalysisInfoProvider import ValueAnalysisInfoProvider
+except:
+    pass
 
 NUM_JUMP_COLUMNS=3
 
@@ -64,12 +76,12 @@ class GUI_Controller:
         builder.connect_signals(self)
         self.root.show_all()
 
-        #create illusion that infobox is a textview
-        eventboxInfoBox = builder.get_object('eventboxInfoBox')
-        eventboxInfoBox.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("white"))
-
-        self.infoBox = builder.get_object('infoBoxLabel')
+        #setup infobox
         self.vboxInfoBox = builder.get_object('vboxInfoBox')
+        self.infoBox = InfoBox()
+        scrwInfoBox = builder.get_object('scrwInfoBox')
+        scrwInfoBox.add(self.infoBox)
+        scrwInfoBox.show_all()
 
         lookupCombo = builder.get_object('lookupCombo')
         liststore = gtk.ListStore(gobject.TYPE_STRING)
@@ -104,6 +116,8 @@ class GUI_Controller:
             self.searchwordHighlighter,
             self.conditionFlagHighlighter,
         ]
+
+        self.enableValueAnalysis(builder)
 
         # Setup focus chains (no tab-to-focus in the information box)
         builder.get_object('vboxMain').set_focus_chain([ self.vpaned ])
@@ -182,6 +196,7 @@ class GUI_Controller:
         self.loadFile()
 
     def loadFile(self, filename=None):
+        global enable_value_analysis
         if filename == None:
             if not self.fileContainer:
                 return
@@ -193,6 +208,8 @@ class GUI_Controller:
         else:
             self.fileContainer = File(filename, baseAddress=baseAddress)
         self.functionView.set_model( FunctionModel.InfoModel(self.fileContainer).getModel() )
+        if enable_value_analysis:
+            self.valueAnalysisInfoProvider = ValueAnalysisInfoProvider(self.fileContainer)
 
     def on_mnuSaveAs_activate(self, widget):
         file_save_dialog = gtk.FileChooserDialog(title="Export file",
@@ -241,7 +258,7 @@ class GUI_Controller:
         insnCursor = self.instructionView.get_cursor()[0]
         curInstruction = None
         if insnCursor:
-            curInstruction = self.instructionView.get_model()[insnCursor][InstructionModel.COLUMN_INSTRUCTION]
+            curInstruction = self.instructionView.get_model()[insnCursor][self.instructionModel.COLUMN_INSTRUCTION]
 
         self.instructionModel.setCurInstruction(curInstruction)
         self.instructionModel.refreshModel()
@@ -265,7 +282,7 @@ class GUI_Controller:
         model = self.instructionView.get_model()
         curpath = self.instructionView.get_cursor()[0]
         try:
-            curaddr = model[curpath][InstructionModel.COLUMN_INSTRUCTION].address
+            curaddr = model[curpath][self.instructionModel.COLUMN_INSTRUCTION].address
         except:
             curaddr = None
         self.instructionView.set_model( InstructionModel.InfoModel(curFunction).getModel() )
@@ -287,6 +304,17 @@ class GUI_Controller:
 
     def on_mnuPreferences_activate(self, widget):
         pd = PreferencesDialogue(self)
+
+    def enableValueAnalysis(self, builder):
+        global enable_value_analysis
+        if not enable_value_analysis:
+            mnuValueAnalysis = builder.get_object('mnuValueAnalysis')
+            mnuValueAnalysis.set_sensitive(False)
+
+    def on_mnuValueAnalysis_activate(self, widget):
+        print 'Doing value analysis'
+        self.valueAnalysisInfoProvider.analyse()
+        print 'Done'
 
     def patternMatchBinCallback(self, entry, comboBox):
         markPattern = entry.get_text()
@@ -393,9 +421,12 @@ there, promote it to the top of the list"""
             return
         instrInfo = self.fileContainer.getArch().getInstructionInfo(instruction)
 
+        valueAnalysisInfo = self.valueAnalysisInfoProvider.getInstructionInfo(instruction)
+
         self.infoBox.set_markup(
-            '<b>' + instrInfo.get('shortinfo', '') + "</b>\n\n" +
-            instrInfo.get('description', '')
+            '<b>' + instrInfo.get('shortinfo', '') + "</b><br />\n\n" +
+            instrInfo.get('description', '').replace('\n', '<br />\n') + "\n" +
+            '<p>' + valueAnalysisInfo + '</p>'
             )
 
     def searchCommon(self, entity, key):
@@ -515,6 +546,7 @@ class InstructionViewController:
         self.insnColumns[2] = gtk.TreeViewColumn("b1", link_renderer, pixbuf=2)
         self.insnColumns[3] = gtk.TreeViewColumn("b2", link_renderer, pixbuf=3)
         self.insnColumns[4] = gtk.TreeViewColumn("Instruction", insnRenderer, markup=4)
+        self.insnColumns[4].set_resizable(True)
         self.insnColumns[5] = gtk.TreeViewColumn("f0", link_renderer, pixbuf=5)
         self.insnColumns[6] = gtk.TreeViewColumn("f1", link_renderer, pixbuf=6)
         self.insnColumns[7] = gtk.TreeViewColumn("f2", link_renderer, pixbuf=7)
@@ -542,7 +574,7 @@ class InstructionViewController:
         """
         Callback for interactive searches.
         """
-        entity = model[iter][InstructionModel.COLUMN_INSTRUCTION]
+        entity = model[iter][self.controller.instructionModel.COLUMN_INSTRUCTION]
         if isinstance(entity, StrEntity):
             return True
         return self.controller.searchCommon(entity, key)
@@ -555,19 +587,19 @@ class InstructionViewController:
     def insnCommentEditStart(self, insnRenderer, editable, path, insnView):
         model = insnView.get_model()
         iter = model.get_iter_from_string(path)
-        insn = model[iter][InstructionModel.COLUMN_INSTRUCTION]
+        insn = model[iter][self.controller.instructionModel.COLUMN_INSTRUCTION]
         editable.set_text(insn.comment)
 
     def insnCommentEdited(self, insnRenderer, path, new_text, insnView):
         model = insnView.get_model()
         iter = model.get_iter_from_string(path)
-        insn = model[iter][InstructionModel.COLUMN_INSTRUCTION]
+        insn = model[iter][self.controller.instructionModel.COLUMN_INSTRUCTION]
         insn.comment = new_text
         insnView.set_cursor(path)
 
     def insnCursorChanged(self, view):
         model = view.get_model()
-        cur = model[view.get_cursor()[0]][InstructionModel.COLUMN_INSTRUCTION]
+        cur = model[view.get_cursor()[0]][self.controller.instructionModel.COLUMN_INSTRUCTION]
         if isinstance(cur, Instruction):
             self.controller.updateInstructionInfo(cur)
             self.controller.instructionModel.setCurInstruction(cur)
@@ -585,7 +617,7 @@ class InstructionViewController:
         if step == gtk.MOVEMENT_DISPLAY_LINES:
             #Find next Instruction
             try:
-                while not isinstance(model[curpath][InstructionModel.COLUMN_INSTRUCTION],
+                while not isinstance(model[curpath][self.controller.instructionModel.COLUMN_INSTRUCTION],
                     Instruction):
                     curpath = curpath + count
             except IndexError:
@@ -604,7 +636,7 @@ class InstructionViewController:
         model = view.get_model()
         functionModel = self.controller.functionView.get_model()
         try:
-            entity = model[iter][InstructionModel.COLUMN_INSTRUCTION]
+            entity = model[iter][self.controller.instructionModel.COLUMN_INSTRUCTION]
         except IndexError:
             # If the index is outside of the model
             return

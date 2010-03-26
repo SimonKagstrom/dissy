@@ -38,39 +38,26 @@ red_arrow_right = loadFile("gfx/red_arrow_right.png")
 jump_pixmaps_right=[None, red_start_down, red_line, red_arrow_left, red_plus, red_plus]
 jump_pixmaps_left=[None, red_start_up, red_line, red_arrow_right, red_plus, red_plus]
 
-(
-COLUMN_ADDR,
-COLUMN_LEFT_STATE2,
-COLUMN_LEFT_STATE1,
-COLUMN_LEFT_STATE0,
-COLUMN_STR_REPRESENTATION,
-COLUMN_RIGHT_STATE0,
-COLUMN_RIGHT_STATE1,
-COLUMN_RIGHT_STATE2,
-COLUMN_TARGET,
-COLUMN_INSTRUCTION,
-) = range(10)
-
 class InfoModel:
     """ The model class holds the information we want to display """
 
-    def __init__(self, function, curInstruction = None, highlighters=[]):
+    def __init__(self, function, curInstruction = None, highlighters=[], numJumpCols=3):
         """ Sets up and populates our gtk.TreeStore """
 
         self.function = function
         self.curInstruction = curInstruction
         self.highlighters = highlighters
-        self.tree_store = gtk.ListStore( gobject.TYPE_STRING,
-                                         gtk.gdk.Pixbuf,
-                                         gtk.gdk.Pixbuf,
-                                         gtk.gdk.Pixbuf,
-                                         gobject.TYPE_STRING,
-                                         gtk.gdk.Pixbuf,
-                                         gtk.gdk.Pixbuf,
-                                         gtk.gdk.Pixbuf,
-                                         gobject.TYPE_STRING,
-                                         gobject.TYPE_PYOBJECT
-                                         )
+        cols = [ gobject.TYPE_STRING, ] + \
+            [gtk.gdk.Pixbuf]*numJumpCols + \
+            [ gobject.TYPE_STRING, ] + \
+            [gtk.gdk.Pixbuf]*numJumpCols + \
+            [ gobject.TYPE_STRING, gobject.TYPE_PYOBJECT ]
+
+        self.COLUMN_ADDR = 0
+        self.COLUMN_STR_REPRESENTATION = 1 + numJumpCols
+        self.COLUMN_TARGET = 1 + numJumpCols + 1 + numJumpCols
+        self.COLUMN_INSTRUCTION = 1 + numJumpCols + 1 + numJumpCols + 1
+        self.tree_store = gtk.ListStore(*cols)
         # Create the TreeStore
         if self.function == None:
             return
@@ -117,7 +104,7 @@ class InfoModel:
 
     def refreshModel(self):
         for iter in self.tree_store:
-            insn = iter[COLUMN_INSTRUCTION]
+            insn = iter[self.COLUMN_INSTRUCTION]
             if isinstance(insn, Instruction):
                 insnAddr = "0x%08x" % (insn.address)
                 insnStr = insn.getOpcode()
@@ -125,10 +112,10 @@ class InfoModel:
                 strRepresentation = '<span foreground="%s">%s</span>\t%s' % (config.insnFgColor, insnStr, argsStr)
                 if insn.comment:
                     strRepresentation += ' <span foreground="%s">;%s</span>' % (config.highLevelCodeFgColor, cgi.escape(insn.comment))
-                iter[COLUMN_STR_REPRESENTATION] = strRepresentation
-                iter[COLUMN_ADDR] = insnAddr
+                iter[self.COLUMN_STR_REPRESENTATION] = strRepresentation
+                iter[self.COLUMN_ADDR] = insnAddr
                 for highlighter in self.highlighters:
-                    highlighter.highlight(iter, self.curInstruction)
+                    highlighter.highlight(iter, self.curInstruction, self)
 
     def lazyinitFunction(self):
         if self.function == None:

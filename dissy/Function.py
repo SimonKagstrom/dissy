@@ -21,7 +21,7 @@ from dissy.StrEntity import StrEntity
 ADDRESS_REGEXP  = "[0-9,a-f,A-F]+"
 ENCODING_REGEXP = ADDRESS_REGEXP + "[ ]"
 INSN_REGEXP     = "[0-9,a-z,A-Z,_,\-,\.,\+]+"
-INSN_ARGS_REGEXP= "\**[a-z,A-Z,0-9,_,\,,\(,\),\%,\$,\[,\],!,#,\-, ,&,{,},\*,\+]+"
+INSN_ARGS_REGEXP= "\**[a-z,A-Z,0-9,_,\,,\(,\),\%,\$,\[,\],!,#,\-, ,&,{,},\*,\+\.]+"
 
 insnRegExp = re.compile("[ ]*(" + ADDRESS_REGEXP + "):[ \t]+((?:" + ENCODING_REGEXP +")*)[ \t]+(" + INSN_REGEXP + ")+[ \t]*(" + INSN_ARGS_REGEXP + ")*")
 
@@ -75,7 +75,7 @@ class Function(AddressableEntity):
 
         lines = self.file.getFunctionObjdump(self.label, start, end)
 
-        self.instructions = []
+        self.insns = []
         self.all = []
         firstNonEmpty=False
         for line in lines:

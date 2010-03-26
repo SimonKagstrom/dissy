@@ -26,6 +26,6 @@ class Location:
             pass
         self.insns.append(insn)
         try:
-            self.insns.append(fn.getNextInstruction(insn)
+            self.insns.append(fn.getNextInstruction(insn))
         except:
             pass
