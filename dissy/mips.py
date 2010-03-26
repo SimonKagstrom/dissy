@@ -58,11 +58,11 @@ class MipsArchitecture(Architecture):
         Architecture.__init__(self, mips_jumps, mips_calls)
         self.jumpRegexp = re.compile("(?:(" + REGISTER_REGEXP + "),)+" + "(" + ADDRESS_REGEXP + ")");
 
-    def getJumpDestination(self, insn, args):
+    def getJumpDestination(self, address, insn, args):
         r = self.jumpRegexp.match(args)
         if r == None:
-            return Architecture.getJumpDestination(self, insn, args)
-        return Architecture.getJumpDestination(self, insn, r.group(2))
+            return Architecture.getJumpDestination(self, address, insn, args)
+        return Architecture.getJumpDestination(self, address, insn, r.group(2))
 
     def getInstructionInfo(self, instruction):
         opcode = instruction.getOpcode()

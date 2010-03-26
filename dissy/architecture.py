@@ -46,7 +46,7 @@ class Architecture:
         "Returns true if this instruction uses the condition flags"
         return insn in self.conditionflagusers
 
-    def getJumpDestination(self, insn, args):
+    def getJumpDestination(self, address, insn, args):
         """Parse the instruction to return the jump destination. The
         base class only tries to convert the argument to a number. See
         mips.py for a more advanced translation.
@@ -57,7 +57,7 @@ class Architecture:
             pass
         return None
 
-from dissy import mips, intel, ppc, arm
+from dissy import mips, intel, ppc, arm, atmel
 
 def getArchitecture(archStr):
     if archStr == "intel":
@@ -76,4 +76,6 @@ def getArchitecture(archStr):
         return arm.ArmArchitecture()
     if archStr == "arm26":
         return arm.ArmArchitecture()
+    if archStr == "atmel":
+        return atmel.AtmelArchitecture()
     return Architecture([])

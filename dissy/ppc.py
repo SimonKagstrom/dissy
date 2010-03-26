@@ -41,8 +41,8 @@ class PpcArchitecture(Architecture):
     def __init__(self):
         Architecture.__init__(self, ppc_jumps, ppc_calls)
 
-    def getJumpDestination(self, insn, args):
+    def getJumpDestination(self, address, insn, args):
         r = args.split(",")
         if len(r) == 1:
-            return Architecture.getJumpDestination(self, insn, args)
-        return Architecture.getJumpDestination(self, insn, r[-1])
+            return Architecture.getJumpDestination(self, address, insn, args)
+        return Architecture.getJumpDestination(self, address, insn, r[-1])
