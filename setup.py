@@ -10,11 +10,33 @@
 ##
 ######################################################################
 import sys
+import os.path
 
 sys.path.append(".")
 from dissy import Config
 
-from distutils.core import setup
+from distutils.core import setup, Extension
+
+extensions = []
+WALI_INCLUDE_DIR = ""
+WALI_LIB_DIR = ""
+for arg in sys.argv:
+    if arg.startswith('--with-uninstalled-wali='):
+        WALI_INCLUDE_DIR = os.path.join(
+            arg[len('--with-uninstalled-wali='):], 'Source')
+        WALI_LIB_DIR = os.path.join(
+            arg[len('--with-uninstalled-wali='):], 'lib')
+
+        print 'Building with value analysis support'
+        extensions += [Extension('_constdom', ['dissy/constdom.i'],
+            libraries=['wali'], 
+            include_dirs=[ WALI_INCLUDE_DIR ],
+            extra_link_args=['-L' + WALI_LIB_DIR],
+            #define_macros=macros,
+            #extra_compile_args=compilerArgs, 
+            #language=lang, 
+            swig_opts=['-c++', '-I' + WALI_INCLUDE_DIR])]
+        sys.argv.remove(arg)
 
 setup(name='%s' % (Config.PROGRAM_NAME).lower(),
       version='%s' % (Config.PROGRAM_VERSION),
@@ -27,8 +49,8 @@ setup(name='%s' % (Config.PROGRAM_NAME).lower(),
       scripts = ['scripts/dissy'],
 
       data_files = [('share/%s/gfx' % (Config.PROGRAM_NAME.lower()),
-		     ['gfx/red_arrow_left.png', 'gfx/red_line.png', 'gfx/red_start_down.png',
-		      'gfx/red_arrow_right.png', 'gfx/red_plus.png', 'gfx/red_start_up.png',
+             ['gfx/red_arrow_left.png', 'gfx/red_line.png', 'gfx/red_start_down.png',
+              'gfx/red_arrow_right.png', 'gfx/red_plus.png', 'gfx/red_start_up.png',
                       'gfx/icon.svg']),
 		    ('share/%s/' % (Config.PROGRAM_NAME.lower()), ['dissy.ui']),
 		    ('share/doc/%s/' % (Config.PROGRAM_NAME.lower()), ['README']),
