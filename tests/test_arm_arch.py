@@ -95,6 +95,12 @@ class TestArmArch(unittest.TestCase):
             (['sp', 'r2', 'r3'], [], []))
         self.assertEqual(self.arch.parseArguments(instr('strh', 'lr, [r2, fp]')),
             (['lr', 'r2', 'fp'], [], []))
+        #postindexing, immediate
+        self.assertEqual(self.arch.parseArguments(instr('str', 'r0, [r3], #4')),
+            (['r0', 'r3'], ['r3'], [4]))
+        #postindexing, register
+        self.assertEqual(self.arch.parseArguments(instr('str', 'r0, [r3], r2')),
+            (['r0', 'r3', 'r2'], ['r3'], []))
 
         #unimplemented instruction type
         self.assertRaises(ValueError, self.arch.parseArguments, instr('abemad', 'r1, r0'))
