@@ -421,7 +421,12 @@ there, promote it to the top of the list"""
             return
         instrInfo = self.fileContainer.getArch().getInstructionInfo(instruction)
 
-        valueAnalysisInfo = self.valueAnalysisInfoProvider.getInstructionInfo(instruction)
+        valueAnalysisInfo = ""
+        try:
+            valueAnalysisInfo = self.valueAnalysisInfoProvider.getInstructionInfo(instruction)
+        except AttributeError, e:
+            # Set above
+            pass
 
         self.infoBox.set_markup(
             '<b>' + instrInfo.get('shortinfo', '') + "</b><br />\n\n" +
