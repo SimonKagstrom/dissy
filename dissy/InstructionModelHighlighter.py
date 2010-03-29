@@ -48,12 +48,12 @@ class SearchwordHighlighter(InstructionModelHighlighter):
             s = s + string[last:]
         return s
 
-    def highlight(self, row, curInstruction):
-        insn = row[InstructionModel.COLUMN_INSTRUCTION]
-        strRep = row[InstructionModel.COLUMN_STR_REPRESENTATION]
+    def highlight(self, row, curInstruction, instructionModel):
+        insn = row[instructionModel.COLUMN_INSTRUCTION]
+        strRep = row[instructionModel.COLUMN_STR_REPRESENTATION]
         if self.searchPattern:
             strRep = self.markup(self.searchPattern, strRep, config.markupFgColor)
-        row[InstructionModel.COLUMN_STR_REPRESENTATION] = strRep
+        row[instructionModel.COLUMN_STR_REPRESENTATION] = strRep
 
 class ConditionFlagHighlighter(InstructionModelHighlighter):
     """Highlights the instruction that may have set the processor condition
@@ -62,10 +62,10 @@ class ConditionFlagHighlighter(InstructionModelHighlighter):
     def __init__(self):
         InstructionModelHighlighter.__init__(self)
         
-    def highlight(self, row, curInstruction):
+    def highlight(self, row, curInstruction, instructionModel):
         if not curInstruction:
             return
-        insn = row[InstructionModel.COLUMN_INSTRUCTION]
+        insn = row[instructionModel.COLUMN_INSTRUCTION]
         arch = curInstruction.getFunction().getFile().getArch()
         #import pdb; pdb.set_trace()
 
@@ -83,6 +83,6 @@ class ConditionFlagHighlighter(InstructionModelHighlighter):
             if i == insn:
                 inthezone = True
             if inthezone and i == curInstruction:
-                row[InstructionModel.COLUMN_ADDR] = '<span foreground="green">' + \
-                    row[InstructionModel.COLUMN_ADDR] + \
+                row[instructionModel.COLUMN_ADDR] = '<span foreground="green">' + \
+                    row[instructionModel.COLUMN_ADDR] + \
                     '</span>'
