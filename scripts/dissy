@@ -380,7 +380,7 @@ there, promote it to the top of the list"""
 
         try:
             # Try to convert to a number (handle some common cases)
-            word = word.strip("+():-/|><")
+            word = word.strip("[]+():-/|><")
             val = long(word, 16)
         except:
             val = word
