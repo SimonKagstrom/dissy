@@ -51,7 +51,7 @@ def getObjType(s):
         return TYPE_RODATA
     elif s in ('b', 'B', 's', 'S', 'c', 'C'):
         return TYPE_BSS
-    elif s in ('t', 'T'):
+    elif s in ('t', 'T', 'W', 'w'):
         return TYPE_TEXT
     return TYPE_DATA
 
