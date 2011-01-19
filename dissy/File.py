@@ -43,7 +43,7 @@ typeToClass = {
 }
 
 def getObjType(s):
-    if s in ('u', 'U'):
+    if s in ('u', 'U', 'N'):
         return TYPE_UNDEFINED
     elif s in ('d', 'D'):
         return TYPE_DATA
@@ -120,6 +120,9 @@ class BaseFile(AddressableEntity):
                 if idx < len(lines)-1:
                     # The size is the next real symbol's line.adr - this line.adr
                     s = symbolRegexp.match(lines[idx])
+                    if s == None:
+                        continue
+
                     while idx < len(lines)-1 and s == None or (s and s.group(1) == None) or \
                         (s and s.group(3) in ('t', 'W')):
                         #ignore symbols with type 't' and 'W', this helps some procs on e.g. ATMEL
