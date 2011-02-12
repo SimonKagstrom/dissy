@@ -243,7 +243,7 @@ class GUI_Controller:
         about = gtk.AboutDialog()
         about.set_name(PROGRAM_NAME)
         about.set_version("v%s" % (PROGRAM_VERSION) )
-        about.set_copyright("(C) Simon Kagstrom, 2006-2009")
+        about.set_copyright("(C) Simon Kagstrom, 2006-2011")
         about.set_website(PROGRAM_URL)
         about.run()
         about.hide()
