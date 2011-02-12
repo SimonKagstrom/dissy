@@ -47,6 +47,8 @@ class Config:
 
         self.defaults = {}
 
+        self.defaults["width"] = 900
+        self.defaults["height"] = 600
         self.defaults["markupFgColor"] = "red"
         self.defaults["insnFgColor"] = "blue"
         self.defaults["highLevelCodeFgColor"] = "grey50"
@@ -60,6 +62,8 @@ class Config:
         self.restoreAllDefaults()
 
     def restoreAllDefaults(self):
+        self.width = self.getDefault("width")
+        self.height = self.getDefault("height")
         self.markupFgColor = self.getDefault("markupFgColor")
         self.insnFgColor = self.getDefault("insnFgColor")
         self.highLevelCodeFgColor = self.getDefault("highLevelCodeFgColor")
@@ -70,6 +74,11 @@ class Config:
         self.nm = self.getDefault("nm")
 
     def copy(self, other):
+        try:
+            self.width = other.width
+            self.height = other.height
+        except:
+            pass
         self.markupFgColor = other.markupFgColor
         self.insnFgColor = other.insnFgColor
         self.highLevelCodeFgColor = other.highLevelCodeFgColor
