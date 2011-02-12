@@ -595,12 +595,12 @@ class InstructionViewController:
         insn = model[iter][self.controller.instructionModel.COLUMN_INSTRUCTION]
         editable.set_text(insn.comment)
 
-    def insnCommentEdited(self, insnRenderer, path, new_text, insnView):
-        model = insnView.get_model()
+    def insnCommentEdited(self, insnRenderer, path, new_text, view):
+        model = view.get_model()
         iter = model.get_iter_from_string(path)
         insn = model[iter][self.controller.instructionModel.COLUMN_INSTRUCTION]
         insn.comment = new_text
-        insnView.set_cursor(path)
+        view.set_cursor(view.get_cursor()[0], focus_column=self.insnColumns[0], start_editing=False)
 
     def insnCursorChanged(self, view):
         model = view.get_model()
