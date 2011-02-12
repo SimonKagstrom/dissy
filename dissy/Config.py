@@ -10,14 +10,24 @@
 ## for full text of the license.
 ##
 ######################################################################
-import cPickle, os, os.path
+import cPickle, os, os.path, sys
 
 PROGRAM_NAME="Dissy"
 PROGRAM_VERSION="10"
 PROGRAM_URL="http://dissy.googlecode.com"
 
-pathsToSearch = ['.', '/usr/local/share/%s' % (PROGRAM_NAME).lower(),
-                     '/usr/share/%s' % (PROGRAM_NAME).lower()]
+def getBasePath():
+    dn = os.path.dirname(sys.argv[0])
+    base = os.path.dirname(os.path.realpath(dn))
+
+    if base == None:
+	base = "/usr/local/"
+    return base
+
+bp = getBasePath()
+pn = PROGRAM_NAME.lower()
+pathsToSearch = [bp + "/share/%s" % pn, '/usr/local/share/%s' % pn,
+                     '/usr/share/%s' % pn]
 
 def lookupFile(name):
     for path in pathsToSearch:
