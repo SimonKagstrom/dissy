@@ -139,6 +139,8 @@ class GUI_Controller:
         if inFile:
             self.loadFile(inFile)
 
+        self.root.resize(config.width, config.height)
+
     def on_navBack_activate(self, widget):
         try:
             val = history.back()
@@ -154,6 +156,8 @@ class GUI_Controller:
         return self.lookupFunction(val)
 
     def on_quit(self, widget=None):
+        config.width, config.height = self.root.get_size()
+        config.save()
         gtk.main_quit()
         return
 
