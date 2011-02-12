@@ -43,7 +43,7 @@ setup(name='%s' % (Config.PROGRAM_NAME).lower(),
       description="A graphical frontend to objdump with navigation possibilities",
       author="Simon Kagstrom",
       url="%s" % (Config.PROGRAM_URL),
-      author_email="simon.kagstrom@bth.se",
+      author_email="simon.kagstrom@gmail.com",
 
       packages = ['dissy'],
       scripts = ['scripts/dissy'],
