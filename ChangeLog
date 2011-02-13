@@ -1,4 +1,16 @@
 Dissy (10)
+	* Identify more branch instructions
+
+	* Correct handling of weak symbols
+
+	* Check for more deliminators when pasing in potential addresses
+
+	* Store the window size when dissy exits, restore it when it's
+	restarted
+
+	* Lookup install path automatically (useful when installing with
+	--prefix=...)
+
 	* ARM instruction information for more instructions: lsr, ldm, stm,
 	ldrb, strb, cmn, eor, eors, orr, orrs, ldrh, strh, strsh, ldrsh, tst,
 	asrs, teq, load multiple, store multiple
@@ -20,7 +32,7 @@ Dissy (10)
 	* Usability improvement: Only insert unique entries in the location
 	bar ("paste bin"), and move the entry to the top if it already exists
 
-	-- Simon Kagstrom <simon.kagstrom@gmail.com>
+	-- Simon Kagstrom <simon.kagstrom@gmail.com>, Sun Feb 13 08:01:42 CET 2011
 
 Dissy (9)
 	* Don't allow information box to grab focus when "tabbing" through the
