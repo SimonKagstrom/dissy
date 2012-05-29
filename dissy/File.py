@@ -22,7 +22,7 @@ from dissy.Data import *
 from dissy.Entity import AddressableEntity
 
 ADDRESS_REGEXP  = "[0-9,a-f,A-F]+"
-FUNCTION_REGEXP = "(?:[.]*)[_,0-9,a-z,A-Z,\:,\*,\,\(,\), ,<,>,~,\.]+"
+FUNCTION_REGEXP = "(?:[.]*)[_,0-9,a-z,A-Z,\:,\*,\,\(,\), ,<,>,~,\.,&,=,\[,\],\+,\-,\*,\/,\|,\^,\%]+"
 
 symbolRegexp = re.compile("(" + ADDRESS_REGEXP + ")* *(" + ADDRESS_REGEXP + ")* ([A,B,C,D,G,I,N,R,S,T,U,V,W,a,b,c,d,g,i,n,r,s,t,u,v,w,-,?]{1}) ("+ FUNCTION_REGEXP + "){1}")
 
