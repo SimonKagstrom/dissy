@@ -42,6 +42,14 @@ typeToClass = {
     TYPE_BSS : Bss,
 }
 
+def shouldFilter(name):
+    forbidden = ["_Jv_RegisterClasses", "__gmon_start__"]
+
+    if name in forbidden:
+        return True
+
+    return False
+
 def getObjType(s):
     if s in ('u', 'U', 'N'):
         return TYPE_UNDEFINED
@@ -137,6 +145,9 @@ class BaseFile(AddressableEntity):
                     size = 0
 
             if objType == TYPE_UNDEFINED:
+                continue
+
+            if shouldFilter(label):
                 continue
 
             if objType == TYPE_TEXT:
