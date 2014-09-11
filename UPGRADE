@@ -1,0 +1,6 @@
+Upgrading from version 1 to 2
+-----------------------------
+The configuration file has changed and is no longer compatible with
+the new version. Remove the ~/.dispy directory. A new directory called
+~/.dissy will be created when you start dissy the next time.
+

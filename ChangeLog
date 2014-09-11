@@ -1,0 +1,153 @@
+Dissy (10)
+	* Identify more branch instructions
+
+	* Correct handling of weak symbols
+
+	* Check for more deliminators when pasing in potential addresses
+
+	* Store the window size when dissy exits, restore it when it's
+	restarted
+
+	* Lookup install path automatically (useful when installing with
+	--prefix=...)
+
+	* ARM instruction information for more instructions: lsr, ldm, stm,
+	ldrb, strb, cmn, eor, eors, orr, orrs, ldrh, strh, strsh, ldrsh, tst,
+	asrs, teq, load multiple, store multiple
+	(Mads Chr. Olesen)
+
+	* Ability to comment instructions (Mads Chr. Olesen)
+
+	* Export of "workspace", s.t. another user can view the disassembled
+	object using only Dissy (no need for a compatible objdump, etc.)
+	(Mads Chr. Olesen)
+
+	* Re-factor GUI to use Gtk.Builder (Mads Chr. Olesen)
+
+	* Optimize loading (Mads Chr. Olesen)
+
+	* Usability improvement: When an entry is selected in the combo box
+	for the location bar, look it up directly
+
+	* Usability improvement: Only insert unique entries in the location
+	bar ("paste bin"), and move the entry to the top if it already exists
+
+	-- Simon Kagstrom <simon.kagstrom@gmail.com>, Sun Feb 13 08:01:42 CET 2011
+
+Dissy (9)
+	* Don't allow information box to grab focus when "tabbing" through the
+	windows
+
+	* Register value analysis added for Arm. This is still inactive
+	though (Mads Chr. Olesen)
+
+	* Make toggling options persistent (save options so that they are
+	remembered on next start)
+
+	* Refactor highlighting in the Instruction model class to allow it to
+	be more easily extendible (Mads Chr. Olesen)
+
+	* Add an information box right of the instruction view that describes
+	what the current instruction does (Mads Chr. Olesen)
+
+	* Highlight the instruction that (most likely) set the condition flags
+	if the current instruction is conditional (Mads Chr. Olesen)
+
+	* Added an icon (icon.svg). Please make a nicer version!
+
+	* Add licensing info to file headers and fix email address
+
+	* Convert tabs to spaces (fix from Mads Chr. Olesen)
+
+	* Fix close of about dialogue (patch from Lubomir Rintel)
+
+	* Fix deprecated file dialogue (patch from Mads Chr. Olesen, thanks)
+
+	-- Simon Kagstrom <simon.kagstrom@gmail.com>, Wed Mar 11 19:09:36 CET 2009
+
+Dissy (8)
+	* Special-case Linux crashes. This allows you to paste things like
+
+	    [ 3796.619417]  [<c031f2ef>] ? ext2_free_blocks+0xfa/0x2b7
+	    [ 3796.619417]  [<c024982b>] ? activate_page+0x9a/0xa2
+	    [ 3796.619417]  [<c0322c5f>] ? ext2_free_branches+0x12d/0x190
+	    [ 3796.619417]  [<c02820ef>] ? __getblk+0x27/0x294
+
+	into the dissy "address bar" and get a nice callback
+
+	* bdnz+/- for PowerPC
+
+	-- Simon Kagstrom <simon.kagstrom@gmail.com>, Sat Jan 31 10:16:14 CET 2009
+
+Dissy (7)
+	* Workaround for a objdump bug on (at least) some MIPS binaries,
+	where addresses are internally 64 bits. If dissy finds no
+	instructions in a function, it will therefore try to sign-extend
+	the value and use that
+
+	* Support for setting the OBJDUMP environment variable to set the
+	objdump to use (idea from Joseph E. Garvey)
+
+	* Initial ARM support (i.e., support for visualizing jumps -
+	disassembly has always worked)
+
+	* Better support for PowerPC (instruction regexp + handling of
+	more branch instructions)
+
+	* History handling has changed to more match that of a
+	web-browser, overwriting the "current" entry instead of appending
+	after it
+
+	-- Simon Kagstrom <simon.kagstrom@gmail.com>, Fri Jan 25 13:10:25 CET 2008
+
+Dissy (6)
+	* New ChangeLog format
+
+	* Better "location bar" behavior: Allow multiple words to be
+	pasted and do more intelligent handling of numbers
+
+	* Added navigation history with back/forward (like in web
+	browsers)
+
+	* Fixed MIPS register regexp to handle k registers
+
+	* Added manpage written by the Varun Hiremath of the Debian
+	project, and documented the new features
+
+	* Fixed bug where the -t option made it impossible to search
+	  for addresses
+
+	-- Simon Kagstrom <simon.kagstrom@gmail.com>, Sun Aug  5 12:54:21 CEST 2007
+
+2007-03-11 Simon Kågström <simon.kagstrom@gmail.com> (5)
+	* Don't parse symbols eagerly (this improves performance a lot)
+
+	* Added some missing jump instructions on IA-32
+
+2006-11-25 Simon Kågström <ska@bth.se> (4)
+	* Added PPC support (Andrew May)
+
+	* Added a text entry for marking certain patterns, e.g., to
+	highlight certain registers and so in the text. The pattern is a
+	regular expression
+
+	* Fixed checks to avoid a few non-fatal exceptions
+
+	* Added tooltips
+
+	* Setting of colors is now possible in the preferences dialogue
+
+2006-10-14 Simon Kågström <ska@bth.se> (3)
+	* Added ability to search for instructions and registers
+
+	* Fixed bug in label lookup
+
+2006-09-03 Simon Kågström <ska@bth.se> (2)
+	* Much faster loading of files. Only load a list of symbols and
+	then load and links each function on demand.
+
+	* More clever use of objdump, nm and readelf
+
+	* Added reload menu option
+
+	* Better IA-32 architecture support
